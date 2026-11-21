@@ -1,0 +1,267 @@
+{
+  "version": "32.7.5",
+  "data": "<mxfile host=\"app.diagrams.net\"><diagram name=\"Página-1\" id=\"Hh0oq56C3gTc2mqevilI\"><mxGraphModel dx=\"1416\" dy=\"2017\" grid=\"1\" gridSize=\"10\" guides=\"1\" tooltips=\"1\" connect=\"1\" arrows=\"1\" fold=\"1\" page=\"1\" pageScale=\"1\" pageWidth=\"827\" pageHeight=\"1169\" background=\"light-dark(#ffffff, #121212)\" math=\"0\" shadow=\"0\"><root><mxCell id=\"0\"/><mxCell id=\"1\" parent=\"0\"/><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-5\" edge=\"1\" parent=\"1\" source=\"Zsa6okGHpLIlw1hHVY6S-1\" style=\"edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;defaultLabelBackgroundColor=page;labelPadding=0 4;\" target=\"Zsa6okGHpLIlw1hHVY6S-2\" value=\"\"><mxGeometry relative=\"1\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-30\" edge=\"1\" parent=\"1\" source=\"Zsa6okGHpLIlw1hHVY6S-1\" style=\"edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;labelPadding=0 4;\" target=\"Zsa6okGHpLIlw1hHVY6S-7\"><mxGeometry relative=\"1\" as=\"geometry\"><Array as=\"points\"><mxPoint x=\"310\" y=\"140\"/><mxPoint x=\"310\" y=\"-15\"/></Array></mxGeometry></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-1\" parent=\"1\" style=\"rounded=1;whiteSpace=wrap;html=1;roundedPerimeter=1;fillColor=#d5e8d4;strokeColor=#82b366;\" value=\"\" vertex=\"1\"><mxGeometry height=\"60\" width=\"120\" x=\"170\" y=\"110\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-29\" edge=\"1\" parent=\"1\" source=\"Zsa6okGHpLIlw1hHVY6S-2\" style=\"edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;labelPadding=0 4;\" target=\"Zsa6okGHpLIlw1hHVY6S-7\"><mxGeometry relative=\"1\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-32\" edge=\"1\" parent=\"1\" source=\"Zsa6okGHpLIlw1hHVY6S-2\" style=\"edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;defaultLabelBackgroundColor=page;labelPadding=0 4;\"><mxGeometry relative=\"1\" as=\"geometry\"><mxPoint x=\"630\" y=\"140\" as=\"targetPoint\"/></mxGeometry></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-2\" parent=\"1\" style=\"rounded=1;whiteSpace=wrap;html=1;roundedPerimeter=1;fillColor=#d5e8d4;strokeColor=#82b366;\" value=\"\" vertex=\"1\"><mxGeometry height=\"60\" width=\"120\" x=\"330\" y=\"110\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-3\" parent=\"1\" style=\"text;strokeColor=none;fillColor=none;html=1;whiteSpace=wrap;verticalAlign=middle;overflow=hidden;\" value=\"&lt;ol&gt;&lt;li&gt;wapp&lt;br&gt;cliente&lt;/li&gt;&lt;/ol&gt;\" vertex=\"1\"><mxGeometry height=\"80\" width=\"100\" x=\"170\" y=\"100\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-6\" parent=\"1\" style=\"text;strokeColor=none;fillColor=none;html=1;whiteSpace=wrap;verticalAlign=middle;overflow=hidden;\" value=\"&lt;ol&gt;&lt;li&gt;sistema&lt;br&gt;enlace&lt;/li&gt;&lt;/ol&gt;\" vertex=\"1\"><mxGeometry height=\"80\" width=\"100\" x=\"330\" y=\"100\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-31\" edge=\"1\" parent=\"1\" source=\"Zsa6okGHpLIlw1hHVY6S-7\" style=\"edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;labelPadding=0 4;\" target=\"Zsa6okGHpLIlw1hHVY6S-26\"><mxGeometry relative=\"1\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-7\" parent=\"1\" style=\"rounded=1;whiteSpace=wrap;html=1;roundedPerimeter=1;fillColor=#fff2cc;strokeColor=#d6b656;\" value=\"\" vertex=\"1\"><mxGeometry height=\"60\" width=\"120\" x=\"490\" y=\"-60\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-40\" edge=\"1\" parent=\"1\" source=\"Zsa6okGHpLIlw1hHVY6S-12\" style=\"edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;defaultLabelBackgroundColor=page;labelPadding=0 4;\" target=\"Zsa6okGHpLIlw1hHVY6S-14\"><mxGeometry relative=\"1\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-12\" parent=\"1\" style=\"rounded=1;whiteSpace=wrap;html=1;roundedPerimeter=1;fillColor=#fff2cc;strokeColor=#d6b656;\" value=\"\" vertex=\"1\"><mxGeometry height=\"60\" width=\"120\" x=\"827\" y=\"-20\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-13\" parent=\"1\" style=\"rounded=1;whiteSpace=wrap;html=1;roundedPerimeter=1;fillColor=#fff2cc;strokeColor=#d6b656;\" value=\"\" vertex=\"1\"><mxGeometry height=\"60\" width=\"120\" x=\"915\" y=\"150\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-43\" edge=\"1\" parent=\"1\" source=\"Zsa6okGHpLIlw1hHVY6S-14\" style=\"edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;labelPadding=0 4;\" target=\"Zsa6okGHpLIlw1hHVY6S-42\"><mxGeometry relative=\"1\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-14\" parent=\"1\" style=\"rounded=1;whiteSpace=wrap;html=1;roundedPerimeter=1;fillColor=#fff2cc;strokeColor=#d6b656;\" value=\"\" vertex=\"1\"><mxGeometry height=\"60\" width=\"120\" x=\"1000\" y=\"-20\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-24\" parent=\"1\" style=\"text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;autosize=1;resizable=0;\" value=\"Carnicero\" vertex=\"1\"><mxGeometry height=\"30\" width=\"80\" x=\"847\" y=\"-5\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-37\" edge=\"1\" parent=\"1\" source=\"Zsa6okGHpLIlw1hHVY6S-26\" style=\"edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;labelPadding=0 4;\" target=\"Zsa6okGHpLIlw1hHVY6S-12\"><mxGeometry relative=\"1\" x=\"0.0507\" as=\"geometry\"><Array as=\"points\"><mxPoint x=\"788.5\" y=\"150\"/><mxPoint x=\"788.5\" y=\"10\"/></Array></mxGeometry></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-26\" parent=\"1\" style=\"rounded=1;whiteSpace=wrap;html=1;roundedPerimeter=1;fillColor=#fff2cc;strokeColor=#d6b656;\" value=\"\" vertex=\"1\"><mxGeometry height=\"60\" width=\"100\" x=\"650\" y=\"110\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-28\" parent=\"1\" style=\"text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;autosize=1;resizable=0;\" value=\"comercial\" vertex=\"1\"><mxGeometry height=\"30\" width=\"70\" x=\"510\" y=\"-50\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-39\" edge=\"1\" parent=\"1\" source=\"Zsa6okGHpLIlw1hHVY6S-33\" style=\"edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;labelPadding=0 4;\" target=\"Zsa6okGHpLIlw1hHVY6S-13\"><mxGeometry relative=\"1\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-69\" edge=\"1\" parent=\"1\" source=\"Zsa6okGHpLIlw1hHVY6S-33\" style=\"edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;labelPadding=0 4;strokeColor=#FF8000;\" target=\"Zsa6okGHpLIlw1hHVY6S-53\"><mxGeometry relative=\"1\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-33\" parent=\"1\" style=\"text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;autosize=1;resizable=0;\" value=\"plataforma&lt;div&gt;&lt;br/&gt;&lt;/div&gt;\" vertex=\"1\"><mxGeometry height=\"40\" width=\"80\" x=\"660\" y=\"120\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-34\" parent=\"1\" style=\"text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;autosize=1;resizable=0;\" value=\"contable\" vertex=\"1\"><mxGeometry height=\"30\" width=\"70\" x=\"940\" y=\"165\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-41\" parent=\"1\" style=\"text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;autosize=1;resizable=0;\" value=\"envio\" vertex=\"1\"><mxGeometry height=\"30\" width=\"50\" x=\"1035\" y=\"-5\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-45\" edge=\"1\" parent=\"1\" source=\"Zsa6okGHpLIlw1hHVY6S-42\" style=\"edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;labelPadding=0 4;\" target=\"Zsa6okGHpLIlw1hHVY6S-13\"><mxGeometry relative=\"1\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-42\" parent=\"1\" style=\"rounded=1;whiteSpace=wrap;html=1;roundedPerimeter=1;fillColor=#fff2cc;strokeColor=#d6b656;\" value=\"\" vertex=\"1\"><mxGeometry height=\"60\" width=\"120\" x=\"1181\" y=\"80\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-44\" parent=\"1\" style=\"text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;autosize=1;resizable=0;\" value=\"Cliente\" vertex=\"1\"><mxGeometry height=\"30\" width=\"60\" x=\"1211\" y=\"95\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-66\" edge=\"1\" parent=\"1\" source=\"Zsa6okGHpLIlw1hHVY6S-49\" style=\"edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;defaultLabelBackgroundColor=page;labelPadding=0 4;strokeColor=#4D9900;\" target=\"Zsa6okGHpLIlw1hHVY6S-3\"><mxGeometry relative=\"1\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-49\" parent=\"1\" style=\"rounded=1;whiteSpace=wrap;html=1;roundedPerimeter=1;fillColor=#d5e8d4;strokeColor=#82b366;\" value=\"en esta estapa&amp;nbsp; es que se comunicara el clinete con la carniceria\" vertex=\"1\"><mxGeometry height=\"80\" width=\"130\" x=\"160\" y=\"250\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-67\" edge=\"1\" parent=\"1\" source=\"Zsa6okGHpLIlw1hHVY6S-50\" style=\"edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;labelPadding=0 4;strokeColor=#4D9900;\" target=\"Zsa6okGHpLIlw1hHVY6S-6\"><mxGeometry relative=\"1\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-50\" parent=\"1\" style=\"rounded=1;whiteSpace=wrap;html=1;roundedPerimeter=1;fillColor=#d5e8d4;strokeColor=#82b366;\" value=\"es el n8n, tiene el agente que lee la conversacion y pide los datos al cliente y genera el json de confirmacion\" vertex=\"1\"><mxGeometry height=\"120\" width=\"120\" x=\"330\" y=\"250\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-68\" edge=\"1\" parent=\"1\" source=\"Zsa6okGHpLIlw1hHVY6S-52\" style=\"edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;labelPadding=0 4;strokeColor=#FF8000;\" target=\"Zsa6okGHpLIlw1hHVY6S-7\"><mxGeometry relative=\"1\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-52\" parent=\"1\" style=\"rounded=1;whiteSpace=wrap;html=1;roundedPerimeter=1;fillColor=#fff2cc;strokeColor=#d6b656;\" value=\"puede atender al cliente via wapp sin usar agente o verificar que la informacion guardada por el bot si este bien&amp;nbsp;\" vertex=\"1\"><mxGeometry height=\"130\" width=\"120\" x=\"490\" y=\"-230\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-53\" parent=\"1\" style=\"rounded=1;whiteSpace=wrap;html=1;roundedPerimeter=1;fillColor=#fff2cc;strokeColor=#d6b656;\" value=\"toma la informacion generada por el bot o el comercial y la pone estructurada y visible para el carnicero, el comercial y el contable para verificar el pago y generar reporte contable\" vertex=\"1\"><mxGeometry height=\"220\" width=\"150\" x=\"625\" y=\"210\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-70\" edge=\"1\" parent=\"1\" source=\"Zsa6okGHpLIlw1hHVY6S-54\" style=\"edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;labelPadding=0 4;strokeColor=#FF8000;\" target=\"Zsa6okGHpLIlw1hHVY6S-12\"><mxGeometry relative=\"1\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-54\" parent=\"1\" style=\"rounded=1;whiteSpace=wrap;html=1;roundedPerimeter=1;fillColor=#fff2cc;strokeColor=#d6b656;\" value=\"ve la informacion de la comanda y corta la carne, en caso de alguna novedad edita el pedido para que sea acorde, debe esperar el pago&amp;nbsp;\" vertex=\"1\"><mxGeometry height=\"140\" width=\"120\" x=\"827\" y=\"-220\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-71\" edge=\"1\" parent=\"1\" source=\"Zsa6okGHpLIlw1hHVY6S-55\" style=\"edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.431;entryY=0.955;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;labelPadding=0 4;strokeColor=#FF8000;\" target=\"Zsa6okGHpLIlw1hHVY6S-13\"><mxGeometry relative=\"1\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-55\" parent=\"1\" style=\"rounded=1;whiteSpace=wrap;html=1;roundedPerimeter=1;fillColor=#fff2cc;strokeColor=#d6b656;\" value=\"recibe la informacion estructurada del pedido, codigo, valor, cantidad y solicita el pago del pedido. una vez hecho el pago se hace el respectivo comrpobante contable\" vertex=\"1\"><mxGeometry height=\"150\" width=\"130\" x=\"905\" y=\"250\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-72\" edge=\"1\" parent=\"1\" source=\"Zsa6okGHpLIlw1hHVY6S-57\" style=\"edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;labelPadding=0 4;strokeColor=#FF8000;\" target=\"Zsa6okGHpLIlw1hHVY6S-42\"><mxGeometry relative=\"1\" as=\"geometry\"/></mxCell><mxCell id=\"Zsa6okGHpLIlw1hHVY6S-57\" parent=\"1\" style=\"rounded=1;whiteSpace=wrap;html=1;roundedPerimeter=1;fillColor=#fff2cc;strokeColor=#d6b656;\" value=\"hace el pago, verifica los cambios hechos por el carnicero y los acepta.&amp;nbsp;\" vertex=\"1\"><mxGeometry height=\"60\" width=\"120\" x=\"1181\" y=\"240\" as=\"geometry\"/></mxCell></root></mxGraphModel></diagram></mxfile>",
+  "pages": [
+    {
+      "id": "Hh0oq56C3gTc2mqevilI",
+      "name": "Página-1",
+      "cells": [
+        {
+          "id": "1",
+          "type": "layer"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-5",
+          "type": "edge",
+          "parent": "1",
+          "source": "Zsa6okGHpLIlw1hHVY6S-1",
+          "target": "Zsa6okGHpLIlw1hHVY6S-2"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-30",
+          "type": "edge",
+          "parent": "1",
+          "source": "Zsa6okGHpLIlw1hHVY6S-1",
+          "target": "Zsa6okGHpLIlw1hHVY6S-7"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-1",
+          "type": "node",
+          "parent": "1"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-29",
+          "type": "edge",
+          "parent": "1",
+          "source": "Zsa6okGHpLIlw1hHVY6S-2",
+          "target": "Zsa6okGHpLIlw1hHVY6S-7"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-32",
+          "type": "edge",
+          "parent": "1",
+          "source": "Zsa6okGHpLIlw1hHVY6S-2"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-2",
+          "type": "node",
+          "parent": "1"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-3",
+          "type": "node",
+          "parent": "1",
+          "label": "wapp\ncliente",
+          "html": "<ol><li>wapp<br>cliente</li></ol>"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-6",
+          "type": "node",
+          "parent": "1",
+          "label": "sistema\nenlace",
+          "html": "<ol><li>sistema<br>enlace</li></ol>"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-31",
+          "type": "edge",
+          "parent": "1",
+          "source": "Zsa6okGHpLIlw1hHVY6S-7",
+          "target": "Zsa6okGHpLIlw1hHVY6S-26"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-7",
+          "type": "node",
+          "parent": "1"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-40",
+          "type": "edge",
+          "parent": "1",
+          "source": "Zsa6okGHpLIlw1hHVY6S-12",
+          "target": "Zsa6okGHpLIlw1hHVY6S-14"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-12",
+          "type": "node",
+          "parent": "1"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-13",
+          "type": "node",
+          "parent": "1"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-43",
+          "type": "edge",
+          "parent": "1",
+          "source": "Zsa6okGHpLIlw1hHVY6S-14",
+          "target": "Zsa6okGHpLIlw1hHVY6S-42"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-14",
+          "type": "node",
+          "parent": "1"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-24",
+          "type": "node",
+          "parent": "1",
+          "label": "Carnicero"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-37",
+          "type": "edge",
+          "parent": "1",
+          "source": "Zsa6okGHpLIlw1hHVY6S-26",
+          "target": "Zsa6okGHpLIlw1hHVY6S-12"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-26",
+          "type": "node",
+          "parent": "1"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-28",
+          "type": "node",
+          "parent": "1",
+          "label": "comercial"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-39",
+          "type": "edge",
+          "parent": "1",
+          "source": "Zsa6okGHpLIlw1hHVY6S-33",
+          "target": "Zsa6okGHpLIlw1hHVY6S-13"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-69",
+          "type": "edge",
+          "parent": "1",
+          "source": "Zsa6okGHpLIlw1hHVY6S-33",
+          "target": "Zsa6okGHpLIlw1hHVY6S-53"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-33",
+          "type": "node",
+          "parent": "1",
+          "label": "plataforma",
+          "html": "plataforma<div><br/></div>"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-34",
+          "type": "node",
+          "parent": "1",
+          "label": "contable"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-41",
+          "type": "node",
+          "parent": "1",
+          "label": "envio"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-45",
+          "type": "edge",
+          "parent": "1",
+          "source": "Zsa6okGHpLIlw1hHVY6S-42",
+          "target": "Zsa6okGHpLIlw1hHVY6S-13"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-42",
+          "type": "node",
+          "parent": "1"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-44",
+          "type": "node",
+          "parent": "1",
+          "label": "Cliente"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-66",
+          "type": "edge",
+          "parent": "1",
+          "source": "Zsa6okGHpLIlw1hHVY6S-49",
+          "target": "Zsa6okGHpLIlw1hHVY6S-3"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-49",
+          "type": "node",
+          "parent": "1",
+          "label": "en esta estapa&nbsp; es que se comunicara el clinete con la carniceria"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-67",
+          "type": "edge",
+          "parent": "1",
+          "source": "Zsa6okGHpLIlw1hHVY6S-50",
+          "target": "Zsa6okGHpLIlw1hHVY6S-6"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-50",
+          "type": "node",
+          "parent": "1",
+          "label": "es el n8n, tiene el agente que lee la conversacion y pide los datos al cliente y genera el json de confirmacion"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-68",
+          "type": "edge",
+          "parent": "1",
+          "source": "Zsa6okGHpLIlw1hHVY6S-52",
+          "target": "Zsa6okGHpLIlw1hHVY6S-7"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-52",
+          "type": "node",
+          "parent": "1",
+          "label": "puede atender al cliente via wapp sin usar agente o verificar que la informacion guardada por el bot si este bien&nbsp;"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-53",
+          "type": "node",
+          "parent": "1",
+          "label": "toma la informacion generada por el bot o el comercial y la pone estructurada y visible para el carnicero, el comercial y el contable para verificar el pago y generar reporte contable"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-70",
+          "type": "edge",
+          "parent": "1",
+          "source": "Zsa6okGHpLIlw1hHVY6S-54",
+          "target": "Zsa6okGHpLIlw1hHVY6S-12"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-54",
+          "type": "node",
+          "parent": "1",
+          "label": "ve la informacion de la comanda y corta la carne, en caso de alguna novedad edita el pedido para que sea acorde, debe esperar el pago&nbsp;"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-71",
+          "type": "edge",
+          "parent": "1",
+          "source": "Zsa6okGHpLIlw1hHVY6S-55",
+          "target": "Zsa6okGHpLIlw1hHVY6S-13"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-55",
+          "type": "node",
+          "parent": "1",
+          "label": "recibe la informacion estructurada del pedido, codigo, valor, cantidad y solicita el pago del pedido. una vez hecho el pago se hace el respectivo comrpobante contable"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-72",
+          "type": "edge",
+          "parent": "1",
+          "source": "Zsa6okGHpLIlw1hHVY6S-57",
+          "target": "Zsa6okGHpLIlw1hHVY6S-42"
+        },
+        {
+          "id": "Zsa6okGHpLIlw1hHVY6S-57",
+          "type": "node",
+          "parent": "1",
+          "label": "hace el pago, verifica los cambios hechos por el carnicero y los acepta.&nbsp;"
+        }
+      ]
+    }
+  ]
+}

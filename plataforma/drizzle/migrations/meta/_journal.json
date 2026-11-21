@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1795297702753,
+      "tag": "0000_porcicola_ops_schema",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1795297727360,
+      "tag": "0001_comprobantes_storage_y_fix_config",
+      "breakpoints": true
+    }
+  ]
+}

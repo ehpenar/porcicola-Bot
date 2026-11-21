@@ -1,6 +1,7 @@
 .DS_Store
 .env
 .env.*
+!.env.example
 *.log
 node_modules/
 .n8n/
@@ -8,4 +9,18 @@ node_modules/
 wappBotPorcicola (3).json
 wappBotPorcicola (4).json
 workflows/wappBotPorcicola (5).json
-elementos/
+
+# Plataforma (artefactos locales)
+plataforma/node_modules/
+plataforma/dist/
+plataforma/dist-ssr/
+plataforma/.output/
+plataforma/.vinxi/
+plataforma/.tanstack/
+plataforma/.nitro/
+plataforma/.wrangler/
+plataforma/.dev.vars
+plataforma/*.local
+plataforma/.env
+plataforma/.env.*
+!plataforma/.env.example

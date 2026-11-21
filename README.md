@@ -1,142 +1,148 @@
 # porcicola-Bot
 
-Bot de WhatsApp para una carnicería de cerdo. Recibe mensajes vía **Green-API**, los procesa con un **AI Agent** en **n8n** (OpenAI) y responde al cliente por WhatsApp.
+Monorepo de la **Porcicola**: automatización de ventas por WhatsApp (n8n) + documentación de proceso + plataforma web de operaciones (4 roles).
 
-> **Versión recomendada: v5** (`workflows/wappBotPorcicola.json` o `workflows/wappBotPorcicola-v5.json`)
->
-> Conversación **coherente** con el comprador: saluda, toma pedido, aclara cortes/cantidades y responde de forma natural. Validada en uso real.
+| Pieza | Estado |
+|-------|--------|
+| Bot WhatsApp (n8n) | **v5** — conversación coherente con el cliente |
+| Documentación / proceso / prompts Lovable | En `elementos/` |
+| Plataforma web (Comercial / Contable / Carnicero / General) | En `plataforma/` — **modo demo local (sin Supabase Auth)** |
+
+Repo: [ehpenar/porcicola-Bot](https://github.com/ehpenar/porcicola-Bot)
 
 ---
 
-## Archivos del repo
+## Estructura del repositorio
+
+```text
+porcicola-Bot/
+├── workflows/          # Workflows n8n (v3 archive → v5 actual)
+├── elementos/          # Proceso, análisis, diagramas, prompts Lovable
+└── plataforma/         # App web Porcicola Ops (React / TanStack / demo mode)
+```
+
+### `workflows/` — bot WhatsApp
 
 | Archivo | Descripción |
 |---------|-------------|
-| `workflows/wappBotPorcicola.json` | Workflow actual (**v5**) para importar en n8n |
-| `workflows/wappBotPorcicola-v5.json` | Copia explícita de la v5 |
-| `workflows/wappBotPorcicola-v4.json` | v4 anti-loop (referencia) |
-| `workflows/archive/wappBotPorcicola-v4.json` | Archivo histórico de la v4 |
-| `workflows/archive/wappBotPorcicola-v3.json` | v3 con bug de loop infinito |
+| `workflows/wappBotPorcicola.json` | Workflow actual (**v5**) |
+| `workflows/wappBotPorcicola-v5.json` | Copia explícita v5 |
+| `workflows/wappBotPorcicola-v4.json` | v4 anti-loop |
+| `workflows/archive/…` | Históricos v3 / v4 |
+
+Ver detalle de v3→v5 más abajo.
+
+### `elementos/` — proceso y prompts
+
+| Archivo | Para qué |
+|---------|----------|
+| `PROCESO_ROBUSTO_PLATAFORMA.md` | Proceso oficial (prepago + liberación) |
+| `PROCESO_ESTADOS_Y_VISTAS.md` | Estados, permisos, colas |
+| `ANALISIS_PROCESO_SISTEMA.md` | Análisis del diagrama conceptual |
+| `PROMPT_LOVABLE_PLATAFORMA.md` | Prompt inicial para generar la app en Lovable |
+| `PROMPT_LOVABLE_CONTINUAR.md` | Prompt para retomar pantallas en Lovable |
+| `AUDITORIA_LOVABLE_PIXEL_PERFECT.md` | Auditoría del export Lovable |
+| `DiagramaConceptualPorcicola.json` + captura | Diagrama original |
+| `README_ELEMENTOS.md` | Índice de lectura |
+
+### `plataforma/` — app web (este commit)
+
+App **Porcicola Ops** con 4 perfiles:
+
+| Rol | Ruta | Función |
+|-----|------|---------|
+| General | `/general` | KPIs, todos los pedidos, usuarios, config pago |
+| Comercial | `/comercial` | Verificar / rechazar / crear pedidos |
+| Contable | `/contable` | Cobrar, validar comprobante, liberar, archivar |
+| Carnicero | `/carnicero` | Espera (lectura) → producción → listo |
+
+**Importante — modo demo (sin Supabase):**
+
+- Por defecto la app corre con `VITE_DEMO_MODE=true`.
+- En `/login` aparecen botones **Entrar como General / Comercial / Contable / Carnicero**.
+- Auth y pedidos viven en `localStorage` del navegador (datos de prueba).
+- Sirve para recorrer vistas y el flujo feliz **sin** crear usuarios en Supabase.
+- Más adelante: `VITE_DEMO_MODE=false` + claves Supabase para Auth/DB reales.
+
+#### Cómo correr la plataforma en local
+
+```sh
+cd plataforma
+cp .env.example .env   # deja VITE_DEMO_MODE=true
+bun install            # o npm install
+bun run dev            # o npm run dev
+```
+
+Abre http://localhost:8080/login y elige un rol.
+
+Flujo de prueba sugerido:
+
+1. Comercial → Crear pedido demo → **Verificar pedido**
+2. Contable → **Solicitar pago** → Adjuntar comprobante → **Validar pago y liberar**
+3. Carnicero → **Marcar listo para despacho**
+4. Contable → **Notificar cliente y archivar**
+5. Cerrar sesión y entrar como otro rol para ver sus colas
 
 ---
 
-## Comparación rápida
+## Cambios de este commit (resumen)
+
+1. **Se publica `elementos/`** — proceso robusto, estados/vistas, análisis del diagrama, auditoría Lovable y prompts para Lovable.
+2. **Se añade `plataforma/`** — código de Porcicola Ops (rutas por rol, ActionBar, colas, dashboard) con **modo demo local** para probar UI sin Supabase Auth.
+3. **README** actualizado como monorepo (bot + docs + plataforma).
+
+Pendiente (fuera de este commit): vincular Auth/DB Supabase real e integración n8n → crear pedidos en la plataforma.
+
+---
+
+## Bot WhatsApp — v5 (actual)
+
+> Conversación coherente: saluda, toma pedido, aclara cortes/cantidades. Validada en uso real.
+
+### Comparación rápida
 
 | Aspecto | v3 | v4 | **v5** |
 |---------|----|----|--------|
-| Vendedor + catálogo PLU | Sí | Sí | **Sí (prompt comercial completo)** |
-| Memoria por chat | Sí | Sí (ventana 10) | **Sí (ventana 3)** |
-| Filtro antes del agente | No | `incomingMessageReceived` + `textMessage` | **IF: existe texto del mensaje** |
+| Vendedor + catálogo PLU | Sí | Sí | **Sí (prompt completo)** |
+| Memoria | Sí | Ventana 10 | **Ventana 3** |
+| Filtro entrada | No | incoming + text | **IF: existe texto** |
 | Anti-duplicado `idMessage` | No | Sí | No |
-| Evitar JSON al cliente | No | Code “Salida segura” | **IF1: si output contiene `confirmado`, no envía por WhatsApp** |
-| Interacción natural con cliente | Parcial / loop | Más corta / anti-bucle | **Buena (validada en producción)** |
-| Loop infinito con "hola" | **Sí** | Mitigado | Mitigado con filtro de texto + IF de confirmación |
-
----
-
-## Versión 5 — cambios (actual)
-
-### Qué cambió respecto a la v4
-
-1. **Prompt comercial completo restaurado**  
-   Vuelve el system prompt detallado de vendedor (catálogo PLU, cantidades, preparación, bolsas, datos del cliente, flujo de atención y JSON de comanda). En la práctica el bot **interactúa bien** con el comprador: mensajes coherentes, no se pierde en el pedido.
-
-2. **IF al inicio (filtro de texto)**  
-   Solo continúa si existe `body.messageData.textMessageData.textMessage`. Ignora webhooks sin texto (ecos vacíos, eventos sin mensaje, etc.) y evita procesar basura.
-
-3. **IF1 después del agente (no mandar JSON de pedido)**  
-   Si la salida del agente **contiene** `"confirmado"` (típico del JSON de comanda), **no** se envía por WhatsApp.  
-   Si es una respuesta conversacional normal (sin ese marcador), sí se envía al cliente.  
-   Así el cliente recibe chat humano y el JSON interno no se “escupe” al chat.
-
-4. **Memoria más corta**  
-   `Simple Memory` con `contextWindowLength: 3` (menos contexto que la v4) para respuestas más enfocadas en el turno reciente.
-
-5. **Estructura más simple**  
-   Se eliminan los nodos Code de la v4 (`Anti-duplicado`, `Salida segura`). El flujo vuelve al patrón Webhook → Set → Agent → Set → HTTP, con los dos IF como control.
-
-6. **Modelo**  
-   OpenAI `gpt-5-mini` (como en v3).
+| Evitar JSON al cliente | No | Code salida segura | **IF1: contiene `confirmado`** |
+| Loop con "hola" | **Sí** | Mitigado | Mitigado |
 
 ### Flujo v5
 
-```
+```text
 Webhook Green-API
-  → IF: ¿existe texto del mensaje?
-       ├─ No  → fin
-       └─ Sí  → Edit Fields (normaliza chatId, nombre, texto)
-                → AI Agent (+ OpenAI + Simple Memory)
-                → Edit Fields1 (output + chatId)
-                → IF1: ¿output contiene "confirmado"?
-                     ├─ Sí  → fin (no envía JSON de comanda al WhatsApp)
-                     └─ No  → HTTP Request (sendMessage Green-API)
+  → IF texto existe?
+       ├─ No → fin
+       └─ Sí → Edit Fields → AI Agent → Edit Fields1
+                → IF1 contiene "confirmado"?
+                     ├─ Sí → fin (no manda JSON al WhatsApp)
+                     └─ No → HTTP sendMessage
 ```
 
-### Qué funciona bien en v5
+### Importar en n8n
 
-- Respuestas coherentes y naturales con el cliente
-- Toma de pedido con catálogo, aclaraciones y resumen
-- Filtro básico para no procesar webhooks sin texto
-- Evita enviar el JSON de pedido confirmado al chat
-
-### Limitaciones / cuidados
-
-- El IF1 se basa en la palabra `confirmado` en el output: si el agente la usa en un mensaje humano (“pedido confirmado”), ese mensaje **no** se enviaría. Conviene que la confirmación al cliente no dependa de esa palabra, o ajustar la condición.
-- No hay dedupe por `idMessage` (sí lo tenía la v4).
-- No hay herramienta real de stock / guardado de pedido.
-- Configura tu propia URL Green-API (en el repo va con placeholders).
-
----
-
-## Versión 4 — anti-loop (referencia)
-
-Filtro estricto `incomingMessageReceived` + `textMessage`, anti-duplicado por `idMessage`, prompt corto anti-bucle y “Salida segura” en Code. Útil como referencia si reaparece el loop.
-
-Archivos: `workflows/wappBotPorcicola-v4.json`, `workflows/archive/wappBotPorcicola-v4.json`
-
----
-
-## Versión 3 — bug de mensajes infinitos
-
-Sin filtro de eco: un *"hola"* podía disparar respuestas en bucle. Archivo: `workflows/archive/wappBotPorcicola-v3.json`
-
----
-
-## Cómo importar en n8n
-
-1. **Workflows → Import from File** → `workflows/wappBotPorcicola.json` (**v5**)
-2. Conecta credenciales **OpenAI**
-3. Sustituye la URL de envío:
-   ```
-   https://{{GREENAPI_ID_INSTANCE}}.api.greenapi.com/waInstance{{GREENAPI_ID_INSTANCE}}/sendMessage/{{GREENAPI_API_TOKEN}}
-   ```
-4. Copia la URL de producción del **Webhook Green-API** y pégala en Green-API
-5. **Publish** + activa **solo** este workflow
-
-### Prueba rápida
-
-1. `hola` → un saludo coherente y pregunta qué desea.
-2. Pedir un corte (ej. costilla) → aclara cantidad/preparación sin perder el hilo.
-3. Confirmar pedido → el JSON interno no debería llegar crudo al WhatsApp.
+1. Import `workflows/wappBotPorcicola.json`
+2. Credenciales OpenAI
+3. URL Green-API `sendMessage` (placeholders en el JSON)
+4. Webhook URL de producción en Green-API
+5. Activar solo este workflow
 
 ---
 
 ## Seguridad
 
-Los tokens reales de Green-API y datos de prueba (pinData) **no** van en el repo. Usa placeholders o credenciales de n8n.
+- Tokens Green-API / `.env` reales **no** van en el repo.
+- `plataforma/.env.example` solo activa demo mode.
+- Originales locales `(3)`/`(4)`/`(5)` con secretos quedan en `.gitignore`.
 
 ---
 
-## Requisitos
+## Historial de commits (orientativo)
 
-- n8n con nodos LangChain / AI Agent
-- OpenAI
-- Green-API (WhatsApp)
-
----
-
-## Historial de commits del repo
-
-1. **v3** — Bot de ventas + bug de mensajes infinitos
-2. **v4** — Filtro entrante, anti-duplicado y salida segura anti-loop
-3. **v5** (este commit) — Prompt comercial completo + IF texto + IF bloqueo de JSON; interacción coherente con el cliente
+1. v3 — bot + bug de loop documentado  
+2. v4 — anti-loop  
+3. v5 — prompt comercial + IF texto/JSON  
+4. **Este commit** — elementos + prompts Lovable + plataforma en modo demo  

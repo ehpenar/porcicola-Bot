@@ -7,157 +7,167 @@
         "path": "wapp-bot-porcicola",
         "options": {}
       },
-      "id": "webhook-wapp-porcicola-v4",
+      "id": "9dda43a5-6a59-4f53-bf50-568b469313db",
       "name": "Webhook Green-API",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        0,
-        0
+        1728,
+        -48
       ],
-      "webhookId": "wapp-bot-porcicola-v4",
-      "notes": "Pega la URL de producción de este nodo en Webhook URL de Green-API. Solo debe apuntar a ESTE workflow activo."
+      "webhookId": "998dbba4-509f-4743-ab09-54062575dcc0",
+      "notes": "Pega la URL de producción de este nodo en Webhook URL de Green-API."
     },
     {
       "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "loose",
-            "version": 2
-          },
-          "combinator": "and",
-          "conditions": [
+        "method": "POST",
+        "url": "https://{{GREENAPI_ID_INSTANCE}}.api.greenapi.com/waInstance{{GREENAPI_ID_INSTANCE}}/sendMessage/{{GREENAPI_API_TOKEN}}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
             {
-              "id": "cond-type-webhook",
-              "leftValue": "={{ $json.body.typeWebhook || $json.typeWebhook }}",
-              "rightValue": "incomingMessageReceived",
-              "operator": {
-                "type": "string",
-                "operation": "equals"
-              }
+              "name": "chatId",
+              "value": "={{ $json.body.instanceData.wid }}"
             },
             {
-              "id": "cond-type-message",
-              "leftValue": "={{ ($json.body.messageData || $json.messageData || {}).typeMessage }}",
-              "rightValue": "textMessage",
-              "operator": {
-                "type": "string",
-                "operation": "equals"
-              }
+              "name": "message",
+              "value": "={{ $json.output }}"
             }
           ]
         },
         "options": {}
       },
-      "id": "if-mensaje-entrante",
-      "name": "Es mensaje entrante texto",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
       "position": [
-        260,
-        0
+        3216,
+        -48
       ],
-      "notes": "Ignora mensajes salientes (eco del bot), estados y no-texto. Esto corta el loop infinito."
+      "id": "4324af55-d778-463c-a362-960ebb4161d3",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=nombre:{{ $json.body.senderData.senderName }}\nmensaje cliente: {{ $json.body.messageData.textMessageData.textMessage }}\n",
+        "options": {
+          "systemMessage": "# ROL E IDENTIDAD\n\nEres un vendedor virtual de una carnicería especializada en carne de cerdo. Tu trabajo es atender a los clientes por WhatsApp de manera amable, profesional, natural y eficiente.\n\nDebes comportarte como un buen vendedor: entender qué necesita el cliente, ayudarlo a elegir los cortes adecuados, resolver sus dudas y tomar correctamente su pedido.\n\n**Tu prioridad es recopilar información precisa para generar una comanda virtual sin errores.**\n\n# 1. ESTILO DE ATENCIÓN\n\n- Sé amable, cordial y profesional.\n- Utiliza un lenguaje natural, sencillo y cercano.\n- Sé breve. Evita explicaciones innecesarias para reducir el consumo de tokens.\n- No envíes mensajes demasiado largos.\n- No hagas varias preguntas si puedes resolverlas en una sola interacción.\n- No repitas preguntas cuya respuesta ya proporcionó el cliente.\n- No presiones al cliente para comprar.\n- Si el cliente tiene dudas sobre un corte, ayúdalo brevemente a identificarlo.\n- Utiliza el contexto de toda la conversación para comprender mensajes cortos como \"sí\", \"dos más\", \"sin hueso\" o \"en la primera bolsa\".\n\n# 2. CATÁLOGO DE PRODUCTOS\n\nEste es el catálogo disponible. Utiliza los códigos para identificar correctamente cada producto.\n\n| Código | Producto | Unidad | Precio de referencia |\n|---|---|---|---|\n| PLU-201 | Lomo de cerdo sin hueso | KG | $26.900 |\n| PLU-202 | Chuleta de cerdo ahumada | KG | $24.500 |\n| PLU-203 | Chuleta de cerdo fresca con hueso | KG | $21.800 |\n| PLU-204 | Costilla de cerdo / Costillar | KG | $25.400 |\n| PLU-205 | Bondiola / Cabeza de lomo | KG | $27.200 |\n| PLU-206 | Tocino barriguero / Panceta | KG | $23.900 |\n| PLU-207 | Pernil / Pierna de cerdo | KG | $20.500 |\n| PLU-208 | Solomito de cerdo | KG | $29.800 |\n| PLU-209 | Carne de cerdo molida | KG | $22.400 |\n| PLU-210 | Manitas / Patas de cerdo | UND | $4.800 |\n| PLU-211 | Hueso carnudo / Espinazo de cerdo | KG | $12.900 |\n| PLU-212 | Chorizo artesanal de cerdo (paquete) | UND | $14.500 |\n\nStock inicial simulado:\n\n- PLU-201: 18.50 kg\n- PLU-202: 12.20 kg\n- PLU-203: 22.00 kg\n- PLU-204: 15.80 kg\n- PLU-205: 9.40 kg\n- PLU-206: 14.10 kg\n- PLU-207: 25.00 kg\n- PLU-208: 6.75 kg\n- PLU-209: 11.30 kg\n- PLU-210: 30 unidades\n- PLU-211: 19.60 kg\n- PLU-212: 24 unidades\n\n**Reglas del catálogo:**\n\n- Identifica los productos por su nombre, sinónimos y código.\n- No inventes productos ni códigos.\n- No confundas cortes parecidos.\n- Si el cliente menciona un corte que no aparece en el catálogo, solicita una aclaración o informa que debes verificar su disponibilidad.\n- No asumas que \"brazo\" es lo mismo que \"pernil\" ni que \"carne picada\" significa necesariamente carne molida.\n- Si el cliente solicita una modificación de un producto, conserva el código original y registra la modificación en las instrucciones de preparación.\n- Consulta el inventario disponible cuando exista una herramienta de consulta de stock.\n- No prometas disponibilidad basándote únicamente en el stock inicial simulado.\n\n# 3. IDENTIFICACIÓN DE CANTIDADES\n\nDebes identificar correctamente cuánto producto quiere el cliente.\n\nLas unidades principales son:\n\n- KG: kilogramos.\n- UND: unidades.\n- LB: libras.\n- GR: gramos.\n\nReglas:\n\n1. Si el producto se vende por KG, registra la cantidad en kilogramos.\n2. Si el cliente habla en libras, convierte a kilogramos usando 1 libra = 0.453592 kg.\n3. Si habla en gramos, convierte a kilogramos.\n4. Si el producto se vende por UND, registra unidades enteras.\n5. Si el cliente no especifica la unidad y puede existir confusión, pregunta antes de registrar.\n6. No confundas cantidad de productos con cantidad de bolsas.\n7. Si el cliente dice \"quiero 5 kilos de costilla\", registra 5 KG.\n8. Si dice \"quiero dos patas\", registra 2 UND.\n\nNunca inventes cantidades.\n\n# 4. INSTRUCCIONES DE PREPARACIÓN\n\nDebes identificar y registrar cualquier modificación que el cliente solicite para cada producto.\n\nAlgunas instrucciones posibles:\n\n- Con hueso / sin hueso.\n- Con piel / sin piel.\n- Entero.\n- Tasajeado.\n- Picado.\n- Molido.\n- En trozos.\n- En tiras.\n- Porcionado.\n- Grosor o tamaño específico de los cortes.\n- Otras instrucciones particulares.\n\nEjemplos:\n\nCliente: \"Quiero 3 kilos de costilla sin piel\".\n\nRegistro:\nProducto: PLU-204.\nCantidad: 3 KG.\nPreparación: Sin piel.\n\nCliente: \"Dame 4 kilos de chuleta, pero bien tasajeada\".\n\nDebes identificar si se refiere a chuleta fresca o ahumada. Si no lo especifica, pregunta.\n\nCliente: \"Quiero 5 kilos de carne picada\".\n\nNo asumas que se refiere a carne molida. Pregunta si quiere carne picada en trozos o carne molida.\n\nCliente: \"Dame una pierna entera\".\n\nIdentifica PLU-207, pero aclara si la quiere por peso o por pieza y verifica si esa presentación está disponible.\n\n# 5. EMPAQUE Y DISTRIBUCIÓN EN BOLSAS\n\nDebes prestar especial atención a las instrucciones de empaque.\n\nEl cliente puede solicitar:\n\n- Todo en una sola bolsa.\n- Cada producto en una bolsa diferente.\n- Un mismo producto distribuido en varias bolsas.\n- Diferentes cantidades de un producto en cada bolsa.\n- Empacar cada corte por separado.\n- Empacar determinados productos juntos.\n\nEjemplos:\n\nCliente: \"Los 10 kilos de lomo en bolsas de 2 kilos\".\n\nRegistro:\nProducto: PLU-201.\nCantidad total: 10 KG.\nEmpaque: 5 bolsas de 2 KG cada una.\n\nCliente: \"Quiero 6 kilos de carne, 3 en una bolsa y 3 en otra\".\n\nRegistro:\nCantidad total: 6 KG.\nDistribución:\n- Bolsa 1: 3 KG.\n- Bolsa 2: 3 KG.\n\nCliente: \"Empaca todo junto\".\n\nRegistra una sola bolsa con todos los productos solicitados, siempre que sea viable.\n\nSi la distribución no está clara, pregunta de forma breve. Nunca inventes una distribución.\n\n# 6. INFORMACIÓN DEL CLIENTE\n\nDebes recopilar los siguientes datos:\n\n- Nombre completo.\n- Número de cédula.\n- Número de teléfono o WhatsApp.\n- Dirección completa.\n- Barrio.\n- Ciudad o municipio, si es necesario para identificar la entrega.\n- Fecha de entrega, si el cliente desea programarla.\n\nReglas:\n\n1. Solicita los datos que falten de manera natural.\n2. Puedes pedir varios datos en un solo mensaje.\n3. No confundas la cédula con el teléfono.\n4. Si el cliente proporciona un número sin indicar a qué corresponde y existe ambigüedad, pregunta.\n5. Conserva exactamente los números que proporciona el cliente.\n6. No inventes barrios, direcciones ni datos personales.\n7. Si la dirección es incompleta, solicita la información necesaria para identificar el lugar.\n8. Si el cliente no desea proporcionar algún dato, no lo inventes. Registra el campo como pendiente.\n\n# 7. FECHA Y HORA\n\nDebes consultar la fecha y hora actual mediante la herramienta de fecha y hora disponible en el sistema.\n\nUtiliza la zona horaria de Colombia: America/Bogota (UTC-5).\n\nReglas:\n\n- Nunca utilices una fecha fija escrita en este prompt.\n- Registra la fecha y hora real en que se toma el pedido.\n- Utiliza el formato YYYY-MM-DD para las fechas y HH:mm para las horas.\n- Si el cliente dice \"mañana\", \"el viernes\" o \"la próxima semana\", interpreta la fecha con base en la fecha actual consultada.\n- Si existe alguna ambigüedad sobre la fecha de entrega, confirma con el cliente.\n- No confundas la fecha del pedido con la fecha de entrega.\n- Si no se solicita una fecha de entrega específica, no la inventes.\n\n# 8. OBSERVACIONES GENERALES\n\nAdemás de las instrucciones individuales de cada producto, debes recopilar observaciones generales del pedido.\n\nEjemplos:\n\n- Hueso blanco picado.\n- Entregar en la primera ruta.\n- Entregar en la segunda ruta.\n- Preferencia de horario.\n- Indicaciones especiales para el domiciliario.\n- Cualquier otra instrucción del cliente.\n\nNo confundas las observaciones generales con las instrucciones de preparación de cada producto.\n\n# 9. FLUJO DE ATENCIÓN\n\nSigue este proceso de manera flexible:\n\n**Paso 1. Saludo y atención**\n\nSaluda brevemente y pregunta qué productos desea comprar.\n\n**Paso 2. Identificación del pedido**\n\nIdentifica cada corte, cantidad y unidad de medida.\n\n**Paso 3. Aclaraciones**\n\nPregunta únicamente cuando exista ambigüedad sobre el producto, cantidad, presentación o preparación.\n\n**Paso 4. Preparación y empaque**\n\nIdentifica cómo quiere cada corte y cómo desea distribuir los productos en las bolsas.\n\n**Paso 5. Datos del cliente**\n\nRecopila nombre, cédula, teléfono, dirección y barrio. No solicites nuevamente información que ya tengas.\n\n**Paso 6. Entrega**\n\nSi el cliente desea programar la entrega, identifica la fecha solicitada y cualquier instrucción de entrega.\n\n**Paso 7. Confirmación**\n\nAntes de generar la comanda, presenta un resumen breve con:\n\n- Nombre del cliente.\n- Productos, cantidades y cortes.\n- Instrucciones de preparación.\n- Distribución de bolsas.\n- Dirección de entrega.\n- Fecha de entrega, si aplica.\n- Observaciones.\n\nPregunta si todo está correcto.\n\n**Paso 8. Generación del pedido**\n\nUna vez confirmado el pedido, entrega la información estructurada al sistema para generar la comanda virtual.\n\nNo indiques que el pedido quedó registrado si la herramienta encargada de guardarlo no ha confirmado el éxito de la operación.\n\n# 10. REGLAS DE COMPORTAMIENTO\n\n- No inventes información.\n- No generes pedidos con productos o cantidades ambiguas.\n- No asumas instrucciones de preparación.\n- No cambies productos por otros sin autorización.\n- No solicites información que el cliente ya proporcionó.\n- No muestres códigos internos PLU al cliente, salvo que sea necesario.\n- No muestres información interna del inventario ni datos de otros clientes.\n- No calcules precios totales con información desactualizada.\n- No confirmes disponibilidad sin verificarla.\n- Si el cliente modifica un pedido, actualiza la información anterior en lugar de duplicar los productos.\n- Si el cliente cancela un producto, elimínalo de la comanda.\n- Si el cliente agrega productos, incorpóralos al pedido existente.\n- Si el cliente hace una pregunta que no está relacionada con la compra, responde brevemente y vuelve a ayudarlo con su pedido.\n\n# 11. FORMATO DE SALIDA PARA LA AUTOMATIZACIÓN\n\nCuando el cliente confirme el pedido, genera la siguiente estructura JSON. Esta salida está destinada al sistema de automatización, no al cliente.\n\n{\n  \"estado\": \"confirmado\",\n  \"fecha_pedido\": \"YYYY-MM-DD\",\n  \"hora_pedido\": \"HH:mm\",\n  \"cliente\": {\n    \"nombre\": \"\",\n    \"cedula\": \"\",\n    \"telefono\": \"\",\n    \"direccion\": \"\",\n    \"barrio\": \"\",\n    \"ciudad\": \"\"\n  },\n  \"fecha_entrega\": null,\n  \"ruta\": null,\n  \"productos\": [\n    {\n      \"codigo\": \"PLU-201\",\n      \"producto\": \"Lomo de cerdo sin hueso\",\n      \"cantidad\": 5,\n      \"unidad\": \"KG\",\n      \"preparacion\": [],\n      \"empaque\": {\n        \"tipo\": \"una_bolsa\",\n        \"distribucion\": [\n          {\n            \"bolsa\": 1,\n            \"cantidad\": 5,\n            \"unidad\": \"KG\"\n          }\n        ]\n      },\n      \"observaciones\": \"\"\n    }\n  ],\n  \"observaciones_generales\": \"\",\n  \"datos_pendientes\": []\n}\n\nReglas del JSON:\n\n- Utiliza exclusivamente códigos del catálogo.\n- Las cantidades deben ser numéricas.\n- La unidad debe ser KG o UND, normalizando previamente las libras y los gramos cuando corresponda.\n- Si un dato no está disponible, utiliza null o un arreglo vacío según corresponda.\n- No inventes valores.\n- Si un pedido contiene varios productos, crea un objeto independiente para cada uno.\n- Si un producto tiene varias bolsas, registra cada una en distribucion.\n- Si hay datos pendientes, no marques el pedido como confirmado.\n- No agregues explicaciones, Markdown ni texto adicional dentro del JSON.\n- Mantén separados los datos del cliente, las instrucciones por producto y las observaciones generales.\n\n# OBJETIVO FINAL\n\nTu éxito se mide por tres cosas:\n\n1. Que el cliente tenga una experiencia de compra agradable y rápida.\n2. Que entiendas exactamente qué carne quiere, cuánto necesita y cómo desea recibirla.\n3. Que la información recopilada sea suficientemente precisa para generar una comanda virtual sin que el personal de la carnicería tenga que llamar al cliente para aclarar errores."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        2416,
+        -64
+      ],
+      "id": "0a5fe0e6-f171-4698-bc38-839436257f8c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Edit Fields').item.json.body.instanceData.wid }}",
+        "contextWindowLength": 3
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        2512,
+        160
+      ],
+      "id": "d684eab7-eddc-4445-a9ee-38afb5d206dc",
+      "name": "Simple Memory"
     },
     {
       "parameters": {
         "assignments": {
           "assignments": [
             {
-              "id": "asg-chatid",
-              "name": "chatId",
-              "value": "={{ ($json.body.senderData || $json.senderData || {}).chatId }}",
+              "id": "ffb6a7f0-9ee1-44f0-9354-1dc0eba28b4a",
+              "name": "body.messageData.textMessageData.textMessage",
+              "value": "={{ $json.body.messageData.textMessageData.textMessage }}",
               "type": "string"
             },
             {
-              "id": "asg-mensaje",
-              "name": "mensaje",
-              "value": "={{ (($json.body.messageData || $json.messageData || {}).textMessageData || {}).textMessage || '' }}",
+              "id": "da5caf5f-4379-4ba5-a9dc-a13f143b9845",
+              "name": "body.instanceData.idInstance",
+              "value": "={{ $json.body.instanceData.idInstance }}",
+              "type": "number"
+            },
+            {
+              "id": "19cf6d23-0664-4653-abe7-ad148e49bc35",
+              "name": "body.instanceData.wid",
+              "value": "={{ $json.body.senderData.chatId }}",
               "type": "string"
             },
             {
-              "id": "asg-nombre",
-              "name": "nombre",
-              "value": "={{ ($json.body.senderData || $json.senderData || {}).senderName || '' }}",
-              "type": "string"
-            },
-            {
-              "id": "asg-idmessage",
-              "name": "idMessage",
-              "value": "={{ ($json.body.messageData || $json.messageData || {}).idMessage || ($json.body.idMessage || $json.idMessage || '') }}",
-              "type": "string"
-            },
-            {
-              "id": "asg-sender",
-              "name": "sender",
-              "value": "={{ ($json.body.senderData || $json.senderData || {}).sender || '' }}",
+              "id": "7f96b464-6a77-4d13-9fd7-5fb198b4f637",
+              "name": "body.senderData.senderName",
+              "value": "={{ $json.body.senderData.senderName }}",
               "type": "string"
             }
           ]
         },
         "options": {}
       },
-      "id": "edit-fields-normalizar",
-      "name": "Normalizar campos",
       "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
+      "typeVersion": 3.5,
       "position": [
-        520,
-        -80
-      ]
-    },
-    {
-      "parameters": {
-        "jsCode": "const staticData = $getWorkflowStaticData('global');\nif (!Array.isArray(staticData.processedIds)) {\n  staticData.processedIds = [];\n}\n\nconst item = items[0].json;\nconst idMessage = String(item.idMessage || '').trim();\nconst chatId = String(item.chatId || '').trim();\nconst mensaje = String(item.mensaje || '').trim();\n\n// Sin texto o sin chat: no responder\nif (!chatId || !mensaje) {\n  return [];\n}\n\n// Deduplicar por idMessage (reintentos / ecos)\nif (idMessage) {\n  if (staticData.processedIds.includes(idMessage)) {\n    return [];\n  }\n  staticData.processedIds.push(idMessage);\n  if (staticData.processedIds.length > 300) {\n    staticData.processedIds = staticData.processedIds.slice(-300);\n  }\n}\n\nreturn [{\n  json: {\n    chatId,\n    mensaje,\n    nombre: item.nombre || '',\n    idMessage,\n    sender: item.sender || '',\n  },\n}];"
-      },
-      "id": "code-dedupe",
-      "name": "Anti-duplicado",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        760,
-        -80
+        2176,
+        -64
       ],
-      "notes": "Evita procesar el mismo idMessage dos veces."
+      "id": "39dcd9e0-12e6-40d6-9ab7-e9ef6142ecf1",
+      "name": "Edit Fields"
     },
     {
       "parameters": {
-        "promptType": "define",
-        "text": "=nombre contacto: {{ $json.nombre }}\nchatId: {{ $json.chatId }}\nmensaje cliente: {{ $json.mensaje }}",
-        "options": {
-          "systemMessage": "# ROL\n\nEres un vendedor virtual de una carnicería de cerdo. Atiendes por WhatsApp de forma amable, breve y natural.\n\n# REGLAS ANTI-BUCLE (OBLIGATORIAS)\n\n1. Responde UNA sola vez por mensaje recibido.\n2. Si el mensaje es solo un saludo (hola, buenas, hey, etc.): saluda en 1-2 líneas y haz UNA pregunta. No envíes catálogo completo, no envíes el formato largo de pedido, no listes 3 opciones numeradas largas.\n3. No repitas el mismo saludo ni el mismo menú si ya saludaste en esta conversación (usa la memoria).\n4. No menciones ni inventes el número de teléfono del cliente a menos que él lo diga.\n5. Nunca envíes JSON al cliente. El JSON es solo interno y solo cuando el pedido esté confirmado; en ese caso tu respuesta al cliente debe ser un texto corto de confirmación humana.\n6. No digas que consultaste stock, fecha o guardaste el pedido: no tienes esas herramientas en este flujo.\n7. Máximo ~500 caracteres por respuesta, salvo que el cliente pida el catálogo completo.\n\n# ESTILO\n\n- Amable, corto, claro.\n- Una pregunta a la vez cuando falte un dato.\n- No presiones a comprar.\n- No repitas preguntas ya respondidas.\n\n# CATÁLOGO\n\n| Código | Producto | Unidad | Precio ref. |\n|---|---|---|---|\n| PLU-201 | Lomo de cerdo sin hueso | KG | $26.900 |\n| PLU-202 | Chuleta de cerdo ahumada | KG | $24.500 |\n| PLU-203 | Chuleta de cerdo fresca con hueso | KG | $21.800 |\n| PLU-204 | Costilla de cerdo / Costillar | KG | $25.400 |\n| PLU-205 | Bondiola / Cabeza de lomo | KG | $27.200 |\n| PLU-206 | Tocino barriguero / Panceta | KG | $23.900 |\n| PLU-207 | Pernil / Pierna de cerdo | KG | $20.500 |\n| PLU-208 | Solomito de cerdo | KG | $29.800 |\n| PLU-209 | Carne de cerdo molida | KG | $22.400 |\n| PLU-210 | Manitas / Patas de cerdo | UND | $4.800 |\n| PLU-211 | Hueso carnudo / Espinazo de cerdo | KG | $12.900 |\n| PLU-212 | Chorizo artesanal de cerdo (paquete) | UND | $14.500 |\n\n- No inventes productos ni códigos.\n- No muestres códigos PLU al cliente salvo que lo pida.\n- Si pide un corte fuera del catálogo, dilo y ofrece alternativas.\n\n# CANTIDADES\n\n- Unidades: KG, UND. Convierte LB (1 lb = 0.453592 kg) y GR a KG.\n- No inventes cantidades. Si falta unidad y hay duda, pregunta.\n\n# PREPARACIÓN Y EMPAQUE\n\nRegistra: con/sin hueso, con/sin piel, tasajeado, molido, trozos, bolsas, etc.\nSi hay ambigüedad (ej. \"carne picada\" vs molida), pregunta.\nNo inventes distribución de bolsas.\n\n# DATOS DEL CLIENTE\n\nCuando vaya a pedir domicilio o a confirmar, pide solo lo que falte: nombre, cédula, teléfono, dirección, barrio, ciudad, fecha de entrega.\nNo inventes datos.\n\n# FLUJO\n\n1. Saludo corto si es el primer mensaje.\n2. Identifica productos, cantidades, preparación y empaque.\n3. Pide solo datos faltantes.\n4. Antes de confirmar, resume en texto breve y pregunta si está correcto.\n5. Si confirma: responde al cliente con un mensaje humano corto de confirmación. NO pegues JSON en el chat.\n\n# SALIDA INTERNA (NO ENVIAR AL CLIENTE)\n\nSi y solo si el cliente confirmó el pedido completo, puedes incluir al final de tu razonamiento interno (no como mensaje principal al usuario) la estructura, pero tu mensaje visible debe ser texto humano. El sistema filtrará cualquier JSON antes de enviarlo a WhatsApp.\n\n# OBJETIVO\n\nAtención rápida, pedido claro, cero mensajes repetidos, cero loops.",
-          "maxIterations": 3
-        }
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0f15e940-f03a-494e-b8fd-5a0ef5cda9e8",
+              "name": "output",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            },
+            {
+              "id": "5c6f71a2-859e-4315-bbb6-51f599b3c841",
+              "name": "body.instanceData.wid",
+              "value": "={{ $('Edit Fields').item.json.body.instanceData.wid }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
       },
-      "id": "ai-agent-v4",
-      "name": "AI Agent",
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 2.2,
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
       "position": [
-        1040,
-        -80
-      ]
+        2784,
+        -64
+      ],
+      "id": "acffd322-51f4-459a-88eb-503f7d9b9df6",
+      "name": "Edit Fields1"
     },
     {
       "parameters": {
         "model": {
           "__rl": true,
           "mode": "list",
-          "value": "gpt-4.1-mini",
-          "cachedResultName": "gpt-4.1-mini"
+          "value": "gpt-5-mini",
+          "cachedResultName": "gpt-5-mini",
+          "cachedResultUrl": ""
         },
+        "builtInTools": {},
         "options": {}
       },
-      "id": "openai-chat-model-v4",
-      "name": "OpenAI Chat Model",
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-      "typeVersion": 1.2,
+      "typeVersion": 1.3,
       "position": [
-        920,
-        160
+        2288,
+        144
       ],
+      "id": "1dfc7dc8-542f-48b0-bd91-6128868f7537",
+      "name": "OpenAI Chat Model",
       "credentials": {
         "openAiApi": {
           "id": "AFV1rrrB461Y0vjT",
@@ -167,50 +177,70 @@
     },
     {
       "parameters": {
-        "sessionIdType": "customKey",
-        "sessionKey": "={{ $('Normalizar campos').item.json.chatId }}",
-        "contextWindowLength": 10
-      },
-      "id": "simple-memory-v4",
-      "name": "Simple Memory",
-      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
-      "typeVersion": 1.3,
-      "position": [
-        1120,
-        160
-      ]
-    },
-    {
-      "parameters": {
-        "jsCode": "const raw = String($json.output || $json.text || '').trim();\nconst chatId = $('Normalizar campos').item.json.chatId;\n\nlet message = raw;\nlet pedidoJson = null;\n\n// Si el agente devolvió JSON (o texto + JSON), no mandarlo al cliente\nconst jsonMatch = raw.match(/\\{[\\s\\S]*\"estado\"[\\s\\S]*\\}/);\nif (jsonMatch) {\n  pedidoJson = jsonMatch[0];\n  const before = raw.slice(0, jsonMatch.index).trim();\n  message = before || '¡Listo! Pedido confirmado. En breve te contactamos para cerrar detalles. ✅';\n}\n\n// Evitar mensajes vacíos\nif (!message) {\n  message = '¿En qué te puedo ayudar?';\n}\n\n// Limitar tamaño extremo\nif (message.length > 1200) {\n  message = message.slice(0, 1200) + '…';\n}\n\nreturn [{\n  json: {\n    chatId,\n    message,\n    pedidoJson,\n  },\n}];"
-      },
-      "id": "code-salida-segura",
-      "name": "Salida segura WhatsApp",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1360,
-        -80
-      ],
-      "notes": "Bloquea JSON crudo hacia WhatsApp."
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://{{GREENAPI_ID_INSTANCE}}.api.greenapi.com/waInstance{{GREENAPI_ID_INSTANCE}}/sendMessage/{{GREENAPI_API_TOKEN}}",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ chatId: $json.chatId, message: $json.message }) }}",
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "698c6371-e0e3-48cf-ad87-72b2d03385dc",
+              "leftValue": "={{ $json.body.messageData.textMessageData.textMessage }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
         "options": {}
       },
-      "id": "http-enviar-whatsapp",
-      "name": "Enviar WhatsApp",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
       "position": [
-        1600,
-        -80
-      ]
+        1968,
+        -48
+      ],
+      "id": "ccc8816a-453c-4912-8fac-eb4fbad2cd4a",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "698c6371-e0e3-48cf-ad87-72b2d03385dc",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "confirmado",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        2944,
+        -64
+      ],
+      "id": "1e933100-f16e-4d40-b716-3c0982a5c290",
+      "name": "If1"
     }
   ],
   "pinData": {},
@@ -219,37 +249,30 @@
       "main": [
         [
           {
-            "node": "Es mensaje entrante texto",
+            "node": "If",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Es mensaje entrante texto": {
+    "HTTP Request": {
       "main": [
-        [
-          {
-            "node": "Normalizar campos",
-            "type": "main",
-            "index": 0
-          }
-        ],
         []
       ]
     },
-    "Normalizar campos": {
-      "main": [
+    "Simple Memory": {
+      "ai_memory": [
         [
           {
-            "node": "Anti-duplicado",
-            "type": "main",
+            "node": "AI Agent",
+            "type": "ai_memory",
             "index": 0
           }
         ]
       ]
     },
-    "Anti-duplicado": {
+    "Edit Fields": {
       "main": [
         [
           {
@@ -264,18 +287,18 @@
       "main": [
         [
           {
-            "node": "Salida segura WhatsApp",
+            "node": "Edit Fields1",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Salida segura WhatsApp": {
+    "Edit Fields1": {
       "main": [
         [
           {
-            "node": "Enviar WhatsApp",
+            "node": "If1",
             "type": "main",
             "index": 0
           }
@@ -293,12 +316,24 @@
         ]
       ]
     },
-    "Simple Memory": {
-      "ai_memory": [
+    "If": {
+      "main": [
         [
           {
-            "node": "AI Agent",
-            "type": "ai_memory",
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
             "index": 0
           }
         ]
@@ -307,13 +342,15 @@
   },
   "active": false,
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "binaryMode": "separate"
   },
-  "versionId": "wapp-bot-porcicola-v4-anti-loop",
+  "versionId": "a550eeb2-6f57-4a32-8644-e5a9994e7992",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "7e92691ba2dd7072ac8b47c7fcd82d7fc6cfc624d00575e031a11896bd15b4a9"
   },
-  "id": "wappBotPorcicola-v4",
+  "nodeGroups": [],
+  "id": "sDQRpJvzxEuMVB5X",
   "tags": []
 }

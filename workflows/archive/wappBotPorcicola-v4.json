@@ -1,0 +1,319 @@
+{
+  "name": "wappBotPorcicola",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "wapp-bot-porcicola",
+        "options": {}
+      },
+      "id": "webhook-wapp-porcicola-v4",
+      "name": "Webhook Green-API",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "wapp-bot-porcicola-v4",
+      "notes": "Pega la URL de producción de este nodo en Webhook URL de Green-API. Solo debe apuntar a ESTE workflow activo."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-type-webhook",
+              "leftValue": "={{ $json.body.typeWebhook || $json.typeWebhook }}",
+              "rightValue": "incomingMessageReceived",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "cond-type-message",
+              "leftValue": "={{ ($json.body.messageData || $json.messageData || {}).typeMessage }}",
+              "rightValue": "textMessage",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "if-mensaje-entrante",
+      "name": "Es mensaje entrante texto",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        260,
+        0
+      ],
+      "notes": "Ignora mensajes salientes (eco del bot), estados y no-texto. Esto corta el loop infinito."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "asg-chatid",
+              "name": "chatId",
+              "value": "={{ ($json.body.senderData || $json.senderData || {}).chatId }}",
+              "type": "string"
+            },
+            {
+              "id": "asg-mensaje",
+              "name": "mensaje",
+              "value": "={{ (($json.body.messageData || $json.messageData || {}).textMessageData || {}).textMessage || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "asg-nombre",
+              "name": "nombre",
+              "value": "={{ ($json.body.senderData || $json.senderData || {}).senderName || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "asg-idmessage",
+              "name": "idMessage",
+              "value": "={{ ($json.body.messageData || $json.messageData || {}).idMessage || ($json.body.idMessage || $json.idMessage || '') }}",
+              "type": "string"
+            },
+            {
+              "id": "asg-sender",
+              "name": "sender",
+              "value": "={{ ($json.body.senderData || $json.senderData || {}).sender || '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "edit-fields-normalizar",
+      "name": "Normalizar campos",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        520,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nif (!Array.isArray(staticData.processedIds)) {\n  staticData.processedIds = [];\n}\n\nconst item = items[0].json;\nconst idMessage = String(item.idMessage || '').trim();\nconst chatId = String(item.chatId || '').trim();\nconst mensaje = String(item.mensaje || '').trim();\n\n// Sin texto o sin chat: no responder\nif (!chatId || !mensaje) {\n  return [];\n}\n\n// Deduplicar por idMessage (reintentos / ecos)\nif (idMessage) {\n  if (staticData.processedIds.includes(idMessage)) {\n    return [];\n  }\n  staticData.processedIds.push(idMessage);\n  if (staticData.processedIds.length > 300) {\n    staticData.processedIds = staticData.processedIds.slice(-300);\n  }\n}\n\nreturn [{\n  json: {\n    chatId,\n    mensaje,\n    nombre: item.nombre || '',\n    idMessage,\n    sender: item.sender || '',\n  },\n}];"
+      },
+      "id": "code-dedupe",
+      "name": "Anti-duplicado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        760,
+        -80
+      ],
+      "notes": "Evita procesar el mismo idMessage dos veces."
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=nombre contacto: {{ $json.nombre }}\nchatId: {{ $json.chatId }}\nmensaje cliente: {{ $json.mensaje }}",
+        "options": {
+          "systemMessage": "# ROL\n\nEres un vendedor virtual de una carnicería de cerdo. Atiendes por WhatsApp de forma amable, breve y natural.\n\n# REGLAS ANTI-BUCLE (OBLIGATORIAS)\n\n1. Responde UNA sola vez por mensaje recibido.\n2. Si el mensaje es solo un saludo (hola, buenas, hey, etc.): saluda en 1-2 líneas y haz UNA pregunta. No envíes catálogo completo, no envíes el formato largo de pedido, no listes 3 opciones numeradas largas.\n3. No repitas el mismo saludo ni el mismo menú si ya saludaste en esta conversación (usa la memoria).\n4. No menciones ni inventes el número de teléfono del cliente a menos que él lo diga.\n5. Nunca envíes JSON al cliente. El JSON es solo interno y solo cuando el pedido esté confirmado; en ese caso tu respuesta al cliente debe ser un texto corto de confirmación humana.\n6. No digas que consultaste stock, fecha o guardaste el pedido: no tienes esas herramientas en este flujo.\n7. Máximo ~500 caracteres por respuesta, salvo que el cliente pida el catálogo completo.\n\n# ESTILO\n\n- Amable, corto, claro.\n- Una pregunta a la vez cuando falte un dato.\n- No presiones a comprar.\n- No repitas preguntas ya respondidas.\n\n# CATÁLOGO\n\n| Código | Producto | Unidad | Precio ref. |\n|---|---|---|---|\n| PLU-201 | Lomo de cerdo sin hueso | KG | $26.900 |\n| PLU-202 | Chuleta de cerdo ahumada | KG | $24.500 |\n| PLU-203 | Chuleta de cerdo fresca con hueso | KG | $21.800 |\n| PLU-204 | Costilla de cerdo / Costillar | KG | $25.400 |\n| PLU-205 | Bondiola / Cabeza de lomo | KG | $27.200 |\n| PLU-206 | Tocino barriguero / Panceta | KG | $23.900 |\n| PLU-207 | Pernil / Pierna de cerdo | KG | $20.500 |\n| PLU-208 | Solomito de cerdo | KG | $29.800 |\n| PLU-209 | Carne de cerdo molida | KG | $22.400 |\n| PLU-210 | Manitas / Patas de cerdo | UND | $4.800 |\n| PLU-211 | Hueso carnudo / Espinazo de cerdo | KG | $12.900 |\n| PLU-212 | Chorizo artesanal de cerdo (paquete) | UND | $14.500 |\n\n- No inventes productos ni códigos.\n- No muestres códigos PLU al cliente salvo que lo pida.\n- Si pide un corte fuera del catálogo, dilo y ofrece alternativas.\n\n# CANTIDADES\n\n- Unidades: KG, UND. Convierte LB (1 lb = 0.453592 kg) y GR a KG.\n- No inventes cantidades. Si falta unidad y hay duda, pregunta.\n\n# PREPARACIÓN Y EMPAQUE\n\nRegistra: con/sin hueso, con/sin piel, tasajeado, molido, trozos, bolsas, etc.\nSi hay ambigüedad (ej. \"carne picada\" vs molida), pregunta.\nNo inventes distribución de bolsas.\n\n# DATOS DEL CLIENTE\n\nCuando vaya a pedir domicilio o a confirmar, pide solo lo que falte: nombre, cédula, teléfono, dirección, barrio, ciudad, fecha de entrega.\nNo inventes datos.\n\n# FLUJO\n\n1. Saludo corto si es el primer mensaje.\n2. Identifica productos, cantidades, preparación y empaque.\n3. Pide solo datos faltantes.\n4. Antes de confirmar, resume en texto breve y pregunta si está correcto.\n5. Si confirma: responde al cliente con un mensaje humano corto de confirmación. NO pegues JSON en el chat.\n\n# SALIDA INTERNA (NO ENVIAR AL CLIENTE)\n\nSi y solo si el cliente confirmó el pedido completo, puedes incluir al final de tu razonamiento interno (no como mensaje principal al usuario) la estructura, pero tu mensaje visible debe ser texto humano. El sistema filtrará cualquier JSON antes de enviarlo a WhatsApp.\n\n# OBJETIVO\n\nAtención rápida, pedido claro, cero mensajes repetidos, cero loops.",
+          "maxIterations": 3
+        }
+      },
+      "id": "ai-agent-v4",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1040,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "id": "openai-chat-model-v4",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        920,
+        160
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "AFV1rrrB461Y0vjT",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Normalizar campos').item.json.chatId }}",
+        "contextWindowLength": 10
+      },
+      "id": "simple-memory-v4",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1120,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = String($json.output || $json.text || '').trim();\nconst chatId = $('Normalizar campos').item.json.chatId;\n\nlet message = raw;\nlet pedidoJson = null;\n\n// Si el agente devolvió JSON (o texto + JSON), no mandarlo al cliente\nconst jsonMatch = raw.match(/\\{[\\s\\S]*\"estado\"[\\s\\S]*\\}/);\nif (jsonMatch) {\n  pedidoJson = jsonMatch[0];\n  const before = raw.slice(0, jsonMatch.index).trim();\n  message = before || '¡Listo! Pedido confirmado. En breve te contactamos para cerrar detalles. ✅';\n}\n\n// Evitar mensajes vacíos\nif (!message) {\n  message = '¿En qué te puedo ayudar?';\n}\n\n// Limitar tamaño extremo\nif (message.length > 1200) {\n  message = message.slice(0, 1200) + '…';\n}\n\nreturn [{\n  json: {\n    chatId,\n    message,\n    pedidoJson,\n  },\n}];"
+      },
+      "id": "code-salida-segura",
+      "name": "Salida segura WhatsApp",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        -80
+      ],
+      "notes": "Bloquea JSON crudo hacia WhatsApp."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://{{GREENAPI_ID_INSTANCE}}.api.greenapi.com/waInstance{{GREENAPI_ID_INSTANCE}}/sendMessage/{{GREENAPI_API_TOKEN}}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ chatId: $json.chatId, message: $json.message }) }}",
+        "options": {}
+      },
+      "id": "http-enviar-whatsapp",
+      "name": "Enviar WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1600,
+        -80
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Green-API": {
+      "main": [
+        [
+          {
+            "node": "Es mensaje entrante texto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Es mensaje entrante texto": {
+      "main": [
+        [
+          {
+            "node": "Normalizar campos",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Normalizar campos": {
+      "main": [
+        [
+          {
+            "node": "Anti-duplicado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anti-duplicado": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Salida segura WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salida segura WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Enviar WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "wapp-bot-porcicola-v4-anti-loop",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7e92691ba2dd7072ac8b47c7fcd82d7fc6cfc624d00575e031a11896bd15b4a9"
+  },
+  "id": "wappBotPorcicola-v4",
+  "tags": []
+}

@@ -2,103 +2,147 @@
 
 Bot de WhatsApp para una carnicería de cerdo. Recibe mensajes vía **Green-API**, los procesa con un **AI Agent** en **n8n** (OpenAI) y responde al cliente por WhatsApp.
 
-> **Versión en este commit: v3** (`workflows/wappBotPorcicola.json`)
+> **Versión recomendada: v4** (`workflows/wappBotPorcicola.json` o `workflows/wappBotPorcicola-v4.json`)
 >
-> Esta versión **funciona como vendedor virtual**, pero tiene un **bug crítico de mensajes infinitos**.
+> Corrige el **loop infinito de mensajes** que tenía la v3 cuando el cliente escribía algo como *"hola"*.
 
 ---
 
-## Qué hace el workflow (v3)
+## Archivos del repo
 
-Flujo:
+| Archivo | Descripción |
+|---------|-------------|
+| `workflows/wappBotPorcicola.json` | Workflow actual (v4) para importar en n8n |
+| `workflows/wappBotPorcicola-v4.json` | Copia explícita de la v4 |
+| `workflows/archive/wappBotPorcicola-v3.json` | Versión anterior con el bug de loop (referencia histórica) |
+
+---
+
+## Comparación rápida v3 vs v4
+
+| Aspecto | v3 | v4 |
+|---------|----|----|
+| Vendedor virtual + catálogo PLU | Sí | Sí |
+| Memoria por chat | Sí | Sí (ventana de 10) |
+| Filtro solo mensajes entrantes de texto | No | Sí (`incomingMessageReceived` + `textMessage`) |
+| Anti-duplicado por `idMessage` | No | Sí |
+| Bloqueo de JSON crudo hacia WhatsApp | No | Sí |
+| Prompt anti-bucle / saludos cortos | No | Sí |
+| Loop infinito con "hola" | **Sí (bug crítico)** | Mitigado |
+
+---
+
+## Versión 3 — qué hacía y qué fallaba
+
+### Flujo v3
 
 ```
 Webhook Green-API
-  → Edit Fields (normaliza chatId, nombre, texto)
-  → AI Agent (vendedor + catálogo PLU + memoria)
-  → Edit Fields1 (prepara output + chatId)
-  → HTTP Request (envía respuesta a Green-API / WhatsApp)
+  → Edit Fields
+  → AI Agent (+ OpenAI + Simple Memory)
+  → Edit Fields1
+  → HTTP Request (sendMessage Green-API)
 ```
 
-### Nodos
+### Qué funcionaba
 
-| Nodo | Función |
-|------|---------|
-| **Webhook Green-API** | Recibe POST de Green-API en `/wapp-bot-porcicola` |
-| **Edit Fields** | Extrae `textMessage`, `chatId`, `senderName`, `idInstance` |
-| **AI Agent** | Atiende como vendedor: saludo, pedido, cantidades, empaque, datos del cliente, confirmación |
-| **OpenAI Chat Model** | Modelo LLM (`gpt-5-mini`) |
-| **Simple Memory** | Memoria por conversación (clave = `wid` / chat) |
-| **Edit Fields1** | Une la respuesta del agente con el `chatId` |
-| **HTTP Request** | `sendMessage` de Green-API hacia el cliente |
+- Atención como vendedor de carne de cerdo
+- Catálogo PLU-201 … PLU-212, cantidades, preparación, empaque, datos del cliente
+- Memoria de conversación
+- Envío de respuesta por WhatsApp vía Green-API
 
-### Capacidades del agente (prompt)
+### Bug crítico: mensajes infinitos
 
-- Catálogo de cortes de cerdo (PLU-201 … PLU-212) con precios de referencia
-- Conversión de unidades (LB/GR → KG)
-- Instrucciones de preparación (sin hueso, tasajeado, etc.) y distribución en bolsas
-- Recolección de datos: nombre, cédula, teléfono, dirección, barrio, ciudad, fecha de entrega
-- Resumen y confirmación antes de “cerrar” el pedido
-- Formato JSON interno pensado para una comanda virtual
+**Síntoma:** el cliente escribe *"hola"* (u otro mensaje corto) y el bot **no para de responder**.
+
+**Causas:**
+
+1. **Sin filtro de evento.** Se procesaba cualquier webhook (incluidos ecos de mensajes salientes del propio bot).
+2. **Eco → respuesta → eco.** `sendMessage` dispara otra notificación → el agente cree que es el cliente → responde otra vez → loop.
+3. **Sin deduplicación** de `idMessage`.
+4. **Saludos** podían disparar respuestas largas / menús, agravando el ciclo.
+5. Posible **JSON de comanda** pegado en el chat, realimentando el flujo.
+
+Archivo histórico: `workflows/archive/wappBotPorcicola-v3.json`
 
 ---
 
-## Error crítico de la v3: loop de mensajes infinitos
+## Versión 4 — correcciones anti-loop (actual)
 
-### Síntoma
+### Flujo v4
 
-Si el cliente escribe algo tan simple como **"hola"**, el bot puede **empezar a mandar mensajes sin parar**.
+```
+Webhook Green-API
+  → IF: ¿es incomingMessageReceived + textMessage?
+       ├─ No  → fin (ignora ecos, estados, no-texto)
+       └─ Sí  → Normalizar campos
+                → Anti-duplicado (idMessage)
+                → AI Agent (+ OpenAI + Simple Memory)
+                → Salida segura WhatsApp (limpia JSON / vacíos)
+                → Enviar WhatsApp (Green-API)
+```
 
-### Por qué pasa
+### Nodos nuevos / clave
 
-1. **No hay filtro de tipo de webhook.** Green-API puede notificar no solo mensajes entrantes (`incomingMessageReceived`), sino también eventos de mensajes salientes, estados, acks, etc. La v3 procesa **todo** lo que llega al webhook.
-2. **Eco del propio bot.** Cuando el bot responde con `sendMessage`, Green-API puede volver a notificar ese mensaje. El workflow lo trata como si fuera del cliente → el agente responde otra vez → nuevo envío → nuevo eco → **loop infinito**.
-3. **Sin deduplicación.** No se guarda `idMessage`; reintentos o notificaciones repetidas se procesan otra vez.
-4. **Saludos disparan respuestas largas.** El prompt empuja a un flujo comercial completo; un “hola” puede generar respuestas densas que, sumadas al eco, agravan el loop.
-5. **Riesgo de JSON en el chat.** Si el agente “confirma” y pega el JSON de comanda al cliente, ese texto también puede realimentar el ciclo.
+| Nodo | Función |
+|------|---------|
+| **Es mensaje entrante texto** | Solo deja pasar webhooks `incomingMessageReceived` con `typeMessage = textMessage`. **Corta el loop por eco.** |
+| **Normalizar campos** | Extrae `chatId`, `mensaje`, `nombre`, `idMessage`, `sender` de forma segura |
+| **Anti-duplicado** | Si ya se procesó ese `idMessage`, no responde otra vez; ignora mensajes vacíos |
+| **AI Agent** | Mismo rol de vendedor, con reglas anti-bucle: saludo corto, una pregunta, sin JSON al cliente, máx. ~500 caracteres |
+| **Salida segura WhatsApp** | Si el agente mete JSON de pedido, lo quita del mensaje al cliente y deja un texto humano |
+| **Enviar WhatsApp** | POST a Green-API `sendMessage` |
 
-### Qué sí funciona en v3 (cuando no entra en loop)
+### Qué mejora respecto a v3
 
-- Conversación con memoria por chat
-- Identificación de productos del catálogo
-- Toma de pedido con preparación/empaque/datos
-- Envío de respuesta por Green-API
+- Un *"hola"* → **una** respuesta corta de saludo + una pregunta (no ráfaga infinita)
+- Los mensajes que el bot envía **no** vuelven a entrar al agente
+- Reintentos / duplicados de Green-API se descartan
+- El cliente no recibe JSON técnico de comanda
+
+### Limitaciones actuales de la v4
+
+- No hay herramientas reales de stock / fecha / guardado de pedido (el prompt lo deja explícito)
+- Solo procesa **mensajes de texto** (ignora audio, imagen, etc.)
+- Hay que configurar instancia y token de Green-API (placeholders en el JSON)
+- Si tienes **dos workflows activos** con el mismo webhook, puedes volver a ver dobles respuestas
 
 ---
 
 ## Cómo importar en n8n
 
-1. En n8n: **Workflows → Import from File**
-2. Selecciona `workflows/wappBotPorcicola.json`
-3. Configura credenciales de **OpenAI**
-4. Sustituye la URL de Green-API:
+1. **Workflows → Import from File** → `workflows/wappBotPorcicola.json` (v4)
+2. Conecta credenciales **OpenAI**
+3. Sustituye la URL de envío:
    ```
    https://{{GREENAPI_ID_INSTANCE}}.api.greenapi.com/waInstance{{GREENAPI_ID_INSTANCE}}/sendMessage/{{GREENAPI_API_TOKEN}}
    ```
-5. Copia la URL de producción del **Webhook** y pégala en Green-API (Webhook URL)
-6. Activa el workflow
+4. Copia la URL de producción del nodo **Webhook Green-API** y pégala en Green-API
+5. Activa **solo** este workflow (desactiva la v3 si la tenías)
 
-> **Importante:** no dejes activos dos workflows apuntando al mismo webhook de Green-API; eso también multiplica respuestas.
+### Prueba rápida
+
+1. Escribe `hola` desde WhatsApp → debe llegar **un** saludo corto.
+2. Escribe otro mensaje → una sola respuesta coherente con el contexto.
+3. Si no hay loop tras 2–3 mensajes, el anti-eco está bien.
 
 ---
 
 ## Seguridad
 
-Los tokens reales de Green-API **no** van en este repositorio. Usa placeholders o variables de entorno / credenciales de n8n.
-
----
-
-## Estado del proyecto
-
-| Versión | Archivo | Estado |
-|---------|---------|--------|
-| **v3** (este commit) | `workflows/wappBotPorcicola.json` | Funcional como bot de ventas, **con bug de loop infinito** |
-| **v4** (siguiente commit) | — | Corrige el loop con filtro de mensajes, anti-duplicado y salida segura |
+Los tokens reales de Green-API **no** están en el repo (placeholders). No subas exports con API keys.
 
 ---
 
 ## Requisitos
 
-- n8n (con nodos LangChain / AI Agent)
-- Cuenta OpenAI
-- Instancia Green-API (WhatsApp)
+- n8n con nodos LangChain / AI Agent
+- OpenAI
+- Green-API (WhatsApp)
+
+---
+
+## Historial de commits del repo
+
+1. **v3** — Bot de ventas funcional + bug documentado de mensajes infinitos
+2. **v4** (este commit) — Filtro entrante, anti-duplicado y salida segura para cortar el loop

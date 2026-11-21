@@ -4,3 +4,6 @@
 *.log
 node_modules/
 .n8n/
+# Originales locales con tokens reales (no subir)
+wappBotPorcicola (3).json
+wappBotPorcicola (4).json

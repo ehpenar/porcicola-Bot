@@ -7,6 +7,7 @@ Monorepo de la **Porcicola**: automatización de ventas por WhatsApp (n8n) + doc
 | Bot WhatsApp (n8n) | **v5** — conversación coherente con el cliente |
 | Documentación / proceso / prompts Lovable | En `elementos/` |
 | Plataforma web (Comercial / Contable / Carnicero / General) | En `plataforma/` — **modo demo local (sin Supabase Auth)** |
+| **Enlace n8n → plataforma** | **`POST /api/enlace/pedidos`** — pedidos confirmados del bot → cola Comercial |
 
 Repo: [ehpenar/porcicola-Bot](https://github.com/ehpenar/porcicola-Bot)
 
@@ -42,10 +43,11 @@ Ver detalle de v3→v5 más abajo.
 | `PROMPT_LOVABLE_PLATAFORMA.md` | Prompt inicial para generar la app en Lovable |
 | `PROMPT_LOVABLE_CONTINUAR.md` | Prompt para retomar pantallas en Lovable |
 | `AUDITORIA_LOVABLE_PIXEL_PERFECT.md` | Auditoría del export Lovable |
+| **`ENLACE_N8N_PLATAFORMA.md`** | **Contrato HTTP n8n → plataforma** |
 | `DiagramaConceptualPorcicola.json` + captura | Diagrama original |
 | `README_ELEMENTOS.md` | Índice de lectura |
 
-### `plataforma/` — app web (este commit)
+### `plataforma/` — app web + enlace del bot
 
 App **Porcicola Ops** con 4 perfiles:
 
@@ -83,15 +85,35 @@ Flujo de prueba sugerido:
 4. Contable → **Notificar cliente y archivar**
 5. Cerrar sesión y entrar como otro rol para ver sus colas
 
+#### Enlace n8n → plataforma (bot crea pedidos reales en la UI)
+
+Cuando el workflow marca el pedido como **confirmado**, n8n debe llamar:
+
+```text
+POST http://localhost:8080/api/enlace/pedidos
+Headers:
+  Content-Type: application/json
+  X-Enlace-Secret: porcicola-enlace-demo
+Body: ={{ $json }}   # item del AI Agent (output + body.instanceData.wid)
+```
+
+- La plataforma parsea el JSON de comanda (aunque venga como string en `output`).
+- Toma el WhatsApp id desde `body.instanceData.wid`.
+- Crea el pedido en estado **`capturado`** / origen **`bot`**.
+- En demo, Comercial lo ve en **Por verificar** (poll ~5s).
+
+Detalle, curl y mapeo de campos: [`elementos/ENLACE_N8N_PLATAFORMA.md`](elementos/ENLACE_N8N_PLATAFORMA.md).
+
 ---
 
 ## Cambios de este commit (resumen)
 
-1. **Se publica `elementos/`** — proceso robusto, estados/vistas, análisis del diagrama, auditoría Lovable y prompts para Lovable.
-2. **Se añade `plataforma/`** — código de Porcicola Ops (rutas por rol, ActionBar, colas, dashboard) con **modo demo local** para probar UI sin Supabase Auth.
-3. **README** actualizado como monorepo (bot + docs + plataforma).
+1. **Endpoint enlace** — `POST /api/enlace/pedidos` (+ GET listado/detalle en demo).
+2. **Ingesta flexible** — acepta el item crudo de n8n (`output` string + `wid`), comanda parseada o array.
+3. **UI demo** — sincroniza pedidos del bot a `localStorage` y refresca colas cada ~5s.
+4. **Docs** — `ENLACE_N8N_PLATAFORMA.md` + README actualizado.
 
-Pendiente (fuera de este commit): vincular Auth/DB Supabase real e integración n8n → crear pedidos en la plataforma.
+Pendiente (fuera de este commit): Auth/DB Supabase real en producción (`VITE_DEMO_MODE=false` + service role).
 
 ---
 
@@ -110,7 +132,7 @@ Pendiente (fuera de este commit): vincular Auth/DB Supabase real e integración 
 | Evitar JSON al cliente | No | Code salida segura | **IF1: contiene `confirmado`** |
 | Loop con "hola" | **Sí** | Mitigado | Mitigado |
 
-### Flujo v5
+### Flujo v5 (+ enlace a plataforma)
 
 ```text
 Webhook Green-API
@@ -118,8 +140,9 @@ Webhook Green-API
        ├─ No → fin
        └─ Sí → Edit Fields → AI Agent → Edit Fields1
                 → IF1 contiene "confirmado"?
-                     ├─ Sí → fin (no manda JSON al WhatsApp)
-                     └─ No → HTTP sendMessage
+                     ├─ Sí → HTTP Request → POST /api/enlace/pedidos
+                     │         (no manda el JSON al WhatsApp)
+                     └─ No → HTTP sendMessage (respuesta al cliente)
 ```
 
 ### Importar en n8n
@@ -145,4 +168,6 @@ Webhook Green-API
 1. v3 — bot + bug de loop documentado  
 2. v4 — anti-loop  
 3. v5 — prompt comercial + IF texto/JSON  
-4. **Este commit** — elementos + prompts Lovable + plataforma en modo demo  
+4. elementos + prompts Lovable + plataforma en modo demo  
+5. **Este commit** — enlace n8n → `POST /api/enlace/pedidos` (pedidos del bot en Comercial)  
+

@@ -1,7 +1,7 @@
 import { queryOptions, type QueryClient } from "@tanstack/react-query";
 import { redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { isDemoMode } from "@/lib/demo-mode";
+import { enlaceApiKey, isDemoMode } from "@/lib/demo-mode";
 import {
   demoMeFromAuth,
   getDemoAuth,
@@ -10,8 +10,61 @@ import {
   listDemoComprobantes,
   listDemoPedidos,
   listDemoUsers,
+  upsertEnlacePedidoIntoDemo,
 } from "@/lib/demo-store";
 import type { AppRole, Comprobante, Evento, Pedido, PedidoLinea, PedidoStatus } from "./pedidos";
+
+export type PedidoDetail = {
+  pedido: Pedido;
+  lineas: PedidoLinea[];
+  comprobantes: Comprobante[];
+  eventos: Evento[];
+};
+
+async function fetchEnlaceDemoPedidos(): Promise<Pedido[]> {
+  try {
+    const res = await fetch("/api/enlace/pedidos", {
+      headers: { "X-Enlace-Secret": enlaceApiKey() },
+    });
+    if (!res.ok) return [];
+    const data = (await res.json()) as { pedidos?: Pedido[] };
+    return data.pedidos ?? [];
+  } catch {
+    return [];
+  }
+}
+
+async function fetchEnlaceDemoPedidoDetail(id: string): Promise<PedidoDetail | null> {
+  try {
+    const res = await fetch(`/api/enlace/pedidos/${id}`, {
+      headers: { "X-Enlace-Secret": enlaceApiKey() },
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as PedidoDetail & { ok?: boolean };
+    if (!data.pedido) return null;
+    return {
+      pedido: data.pedido,
+      lineas: data.lineas ?? [],
+      comprobantes: data.comprobantes ?? [],
+      eventos: data.eventos ?? [],
+    };
+  } catch {
+    return null;
+  }
+}
+
+/** Trae pedidos del bot (archivo servidor) y los mete en localStorage demo. */
+async function syncEnlacePedidosIntoDemo(): Promise<void> {
+  const enlace = await fetchEnlaceDemoPedidos();
+  const localIds = new Set(listDemoPedidos("all").map((p) => p.id));
+  const missing = enlace.filter((p) => !localIds.has(p.id));
+  await Promise.all(
+    missing.map(async (p) => {
+      const detail = await fetchEnlaceDemoPedidoDetail(p.id);
+      if (detail) upsertEnlacePedidoIntoDemo(detail);
+    }),
+  );
+}
 
 export type Me = {
   userId: string;
@@ -59,8 +112,12 @@ export function pedidosQueryOptions(statuses: PedidoStatus[] | "all") {
   const key = statuses === "all" ? "all" : [...statuses].sort().join(",");
   return queryOptions({
     queryKey: ["pedidos", key],
+    refetchInterval: isDemoMode() ? 5_000 : false,
     queryFn: async (): Promise<Pedido[]> => {
-      if (isDemoMode()) return listDemoPedidos(statuses);
+      if (isDemoMode()) {
+        await syncEnlacePedidosIntoDemo();
+        return listDemoPedidos(statuses);
+      }
       let q = supabase.from("pedidos").select("*").order("created_at", { ascending: false }).limit(1000);
       if (statuses !== "all") q = q.in("status", statuses);
       const { data, error } = await q;
@@ -70,18 +127,17 @@ export function pedidosQueryOptions(statuses: PedidoStatus[] | "all") {
   });
 }
 
-export type PedidoDetail = {
-  pedido: Pedido;
-  lineas: PedidoLinea[];
-  comprobantes: Comprobante[];
-  eventos: Evento[];
-};
-
 export function pedidoQueryOptions(id: string) {
   return queryOptions({
     queryKey: ["pedido", id],
     queryFn: async (): Promise<PedidoDetail | null> => {
-      if (isDemoMode()) return getDemoPedidoDetail(id);
+      if (isDemoMode()) {
+        const local = getDemoPedidoDetail(id);
+        if (local) return local;
+        const remote = await fetchEnlaceDemoPedidoDetail(id);
+        if (remote) return upsertEnlacePedidoIntoDemo(remote);
+        return null;
+      }
       const { data: pedido, error } = await supabase.from("pedidos").select("*").eq("id", id).maybeSingle();
       if (error) throw error;
       if (!pedido) return null;

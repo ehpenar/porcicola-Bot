@@ -325,6 +325,30 @@ export function getDemoPedidoDetail(id: string): PedidoDetail | null {
   };
 }
 
+/**
+ * Importa un pedido creado por /api/enlace/pedidos al localStorage demo
+ * para que la UI (Comercial, etc.) lo muestre y pueda transicionar.
+ * Si ya existe el id, no pisa cambios locales.
+ */
+export function upsertEnlacePedidoIntoDemo(detail: PedidoDetail): PedidoDetail {
+  const data = readData();
+  if (data.pedidos.some((p) => p.id === detail.pedido.id)) {
+    return getDemoPedidoDetail(detail.pedido.id)!;
+  }
+  data.pedidos.unshift(detail.pedido);
+  for (const linea of detail.lineas) {
+    if (!data.lineas.some((l) => l.id === linea.id)) data.lineas.push(linea);
+  }
+  for (const evento of detail.eventos ?? []) {
+    if (!data.eventos.some((e) => e.id === evento.id)) data.eventos.push(evento);
+  }
+  for (const comp of detail.comprobantes ?? []) {
+    if (!data.comprobantes.some((c) => c.id === comp.id)) data.comprobantes.push(comp);
+  }
+  writeData(data);
+  return getDemoPedidoDetail(detail.pedido.id)!;
+}
+
 export function listDemoUsers() {
   return readData().users;
 }

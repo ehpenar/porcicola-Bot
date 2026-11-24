@@ -7,7 +7,14 @@ import { isDemoMode } from "@/lib/demo-mode";
 export function useRealtimePedidos() {
   const queryClient = useQueryClient();
   useEffect(() => {
-    if (isDemoMode()) return;
+    // Demo: el bot escribe en el servidor; poll cada 5s para que Comercial vea pedidos nuevos.
+    if (isDemoMode()) {
+      const id = setInterval(() => {
+        void queryClient.invalidateQueries({ queryKey: ["pedidos"] });
+      }, 5_000);
+      return () => clearInterval(id);
+    }
+
     let timer: ReturnType<typeof setTimeout> | undefined;
     const refresh = () => {
       clearTimeout(timer);

@@ -107,7 +107,7 @@ Local: `http://localhost:8080/api/enlace/pedidos` (misma auth/body).
 - En demo, Comercial lo ve en **Por verificar** (poll ~5s).
 - En Netlify los pedidos del enlace se guardan en **Netlify Blobs** (no en disco).
 
-**Env vars en Netlify:** `VITE_DEMO_MODE=true`, `ENLACE_API_KEY` y `VITE_ENLACE_API_KEY` (= `porcicola-enlace-demo`). Build: base `plataforma`, command `bun run build`, publish `dist` (`netlify.toml`).
+**Env vars en Netlify:** `VITE_DEMO_MODE=true` (no secret) y `ENLACE_API_KEY=porcicola-enlace-demo` (sí secret). No subas `VITE_ENLACE_API_KEY` como secret — Netlify corta el build. Build: base `plataforma`, command `bun run build`, publish `dist` (`netlify.toml`).
 
 Detalle: [`elementos/ENLACE_N8N_PLATAFORMA.md`](elementos/ENLACE_N8N_PLATAFORMA.md).
 

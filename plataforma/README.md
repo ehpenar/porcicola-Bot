@@ -28,11 +28,12 @@ Build (ya en `netlify.toml` del monorepo):
 
 Variables de entorno en Netlify (Project configuration → Environment variables):
 
-| Key | Value | Scopes |
-|-----|--------|--------|
-| `VITE_DEMO_MODE` | `true` | Builds + Functions |
-| `ENLACE_API_KEY` | `porcicola-enlace-demo` | Builds + Functions |
-| `VITE_ENLACE_API_KEY` | `porcicola-enlace-demo` | Builds + Functions |
+| Key | Value | ¿Secret? |
+|-----|--------|----------|
+| `VITE_DEMO_MODE` | `true` | No (es `VITE_*`, va al browser) |
+| `ENLACE_API_KEY` | `porcicola-enlace-demo` | Sí (solo servidor / n8n) |
+
+No uses `VITE_ENLACE_API_KEY` en Netlify: si la marcas secret, el build falla (“Exposed secrets”). En demo el cliente ya usa el fallback `porcicola-enlace-demo`.
 
 Tras el deploy, el enlace del bot es:
 

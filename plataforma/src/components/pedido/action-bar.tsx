@@ -195,9 +195,10 @@ export function ActionBar({ detail, role }: { detail: PedidoDetail; role: AppRol
 
   return (
     <>
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t bg-card/95 shadow-bar backdrop-blur md:left-60">
-        <div className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between md:px-8">
-          <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+      {/* pr/pb extra: el badge "Powered by Netlify" tapa la esquina inferior derecha */}
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t bg-card/95 pb-14 shadow-bar backdrop-blur md:left-60 md:pb-3 md:pr-44">
+        <div className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-center md:px-8">
+          <p className="flex items-center gap-1.5 text-xs text-muted-foreground sm:mr-4">
             {actions.length === 0 ? (
               <>
                 <Lock className="size-3.5" /> {readOnlyMessage(role, pedido.status)}
@@ -209,7 +210,7 @@ export function ActionBar({ detail, role }: { detail: PedidoDetail; role: AppRol
             )}
           </p>
           {actions.length > 0 && (
-            <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:justify-end">
+            <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:justify-center">
               {actions.map((a) => (
                 <Button key={a.id} variant={a.variant} onClick={() => trigger(a)} disabled={mutation.isPending} className="h-10 sm:h-9">
                   {a.icon}

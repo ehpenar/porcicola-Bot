@@ -60,7 +60,7 @@ function mapCliente(body: EnlacePedidoBody) {
 }
 
 async function crearEnDemo(body: EnlacePedidoBody) {
-  const data = readServerDemoData();
+  const data = await readServerDemoData();
   const id = uid();
   const ts = now();
   const cliente = mapCliente(body);
@@ -102,7 +102,7 @@ async function crearEnDemo(body: EnlacePedidoBody) {
   data.pedidos.unshift(pedido);
   data.lineas.push(...lineas);
   data.eventos.push(evento);
-  writeServerDemoData(data);
+  await writeServerDemoData(data);
   return { pedido, lineas, evento };
 }
 

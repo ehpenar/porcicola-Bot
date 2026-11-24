@@ -87,22 +87,29 @@ Flujo de prueba sugerido:
 
 #### Enlace n8n → plataforma (bot crea pedidos reales en la UI)
 
+**Producción (Netlify):** https://porcicolabot.netlify.app  
+
 Cuando el workflow marca el pedido como **confirmado**, n8n debe llamar:
 
 ```text
-POST http://localhost:8080/api/enlace/pedidos
+POST https://porcicolabot.netlify.app/api/enlace/pedidos
 Headers:
   Content-Type: application/json
   X-Enlace-Secret: porcicola-enlace-demo
 Body: ={{ $json }}   # item del AI Agent (output + body.instanceData.wid)
 ```
 
+Local: `http://localhost:8080/api/enlace/pedidos` (misma auth/body).
+
 - La plataforma parsea el JSON de comanda (aunque venga como string en `output`).
 - Toma el WhatsApp id desde `body.instanceData.wid`.
 - Crea el pedido en estado **`capturado`** / origen **`bot`**.
 - En demo, Comercial lo ve en **Por verificar** (poll ~5s).
+- En Netlify los pedidos del enlace se guardan en **Netlify Blobs** (no en disco).
 
-Detalle, curl y mapeo de campos: [`elementos/ENLACE_N8N_PLATAFORMA.md`](elementos/ENLACE_N8N_PLATAFORMA.md).
+**Env vars en Netlify:** `VITE_DEMO_MODE=true`, `ENLACE_API_KEY` y `VITE_ENLACE_API_KEY` (= `porcicola-enlace-demo`). Build: base `plataforma`, command `bun run build`, publish `dist` (`netlify.toml`).
+
+Detalle: [`elementos/ENLACE_N8N_PLATAFORMA.md`](elementos/ENLACE_N8N_PLATAFORMA.md).
 
 ---
 

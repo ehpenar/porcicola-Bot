@@ -10,8 +10,8 @@ POST {BASE_URL}/api/enlace/pedidos
 
 Ejemplos:
 
+- **Producción (Netlify):** `https://porcicolabot.netlify.app/api/enlace/pedidos`
 - Local: `http://localhost:8080/api/enlace/pedidos` (o el puerto de `vite dev`)
-- Producción: `https://tu-dominio.com/api/enlace/pedidos`
 
 ## Autenticación
 
@@ -67,7 +67,8 @@ Solo se aceptan pedidos con `estado: "confirmado"` (si el campo no viene, tambi�
 
 1. Después del IF que valida `estado === confirmado`, agrega **HTTP Request**.
 2. Method: `POST`
-3. URL: `{{$env.PLATAFORMA_ENLACE_URL}}` → p.ej. `http://host.docker.internal:8080/api/enlace/pedidos`
+3. URL: `https://porcicolabot.netlify.app/api/enlace/pedidos`  
+   (local: `http://host.docker.internal:8080/api/enlace/pedidos` si n8n corre en Docker)
 4. Authentication: None (usa header custom)
 5. Headers:
    - `Content-Type` = `application/json`

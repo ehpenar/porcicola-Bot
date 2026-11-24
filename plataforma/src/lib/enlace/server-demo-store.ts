@@ -8,34 +8,87 @@ type ServerDemoData = {
   eventos: Evento[];
 };
 
-const DATA_DIR = join(process.cwd(), ".data");
-const DATA_FILE = join(DATA_DIR, "enlace-pedidos.json");
+const BLOB_STORE = "porcicola-enlace";
+const BLOB_KEY = "pedidos.json";
 
 function empty(): ServerDemoData {
   return { pedidos: [], lineas: [], eventos: [] };
 }
 
-export function readServerDemoData(): ServerDemoData {
+function isNetlifyRuntime() {
+  return Boolean(process.env.NETLIFY || process.env.NETLIFY_DEV || process.env.CONTEXT);
+}
+
+/** Local o /tmp en Functions; en Netlify preferimos Blobs (persistente entre instancias). */
+function localDataFile() {
+  const base = process.env.NETLIFY ? "/tmp" : join(process.cwd(), ".data");
+  return { dir: base, file: join(base, "enlace-pedidos.json") };
+}
+
+function readLocalFile(): ServerDemoData {
   try {
-    if (!existsSync(DATA_FILE)) return empty();
-    return JSON.parse(readFileSync(DATA_FILE, "utf8")) as ServerDemoData;
+    const { file } = localDataFile();
+    if (!existsSync(file)) return empty();
+    return JSON.parse(readFileSync(file, "utf8")) as ServerDemoData;
   } catch {
     return empty();
   }
 }
 
-export function writeServerDemoData(data: ServerDemoData) {
-  if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
-  writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), "utf8");
+function writeLocalFile(data: ServerDemoData) {
+  const { dir, file } = localDataFile();
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  writeFileSync(file, JSON.stringify(data, null, 2), "utf8");
 }
 
-export function listServerDemoPedidos() {
-  const data = readServerDemoData();
+async function readFromBlobs(): Promise<ServerDemoData | null> {
+  try {
+    const { getStore } = await import("@netlify/blobs");
+    const store = getStore(BLOB_STORE);
+    const data = await store.get(BLOB_KEY, { type: "json" });
+    if (!data || typeof data !== "object") return empty();
+    return data as ServerDemoData;
+  } catch (err) {
+    console.warn("[enlace] Netlify Blobs read failed, using local/tmp fallback", err);
+    return null;
+  }
+}
+
+async function writeToBlobs(data: ServerDemoData): Promise<boolean> {
+  try {
+    const { getStore } = await import("@netlify/blobs");
+    const store = getStore(BLOB_STORE);
+    await store.setJSON(BLOB_KEY, data);
+    return true;
+  } catch (err) {
+    console.warn("[enlace] Netlify Blobs write failed, using local/tmp fallback", err);
+    return false;
+  }
+}
+
+export async function readServerDemoData(): Promise<ServerDemoData> {
+  if (isNetlifyRuntime()) {
+    const fromBlobs = await readFromBlobs();
+    if (fromBlobs) return fromBlobs;
+  }
+  return readLocalFile();
+}
+
+export async function writeServerDemoData(data: ServerDemoData): Promise<void> {
+  if (isNetlifyRuntime()) {
+    const ok = await writeToBlobs(data);
+    if (ok) return;
+  }
+  writeLocalFile(data);
+}
+
+export async function listServerDemoPedidos() {
+  const data = await readServerDemoData();
   return [...data.pedidos].sort((a, b) => b.created_at.localeCompare(a.created_at));
 }
 
-export function getServerDemoPedidoDetail(id: string) {
-  const data = readServerDemoData();
+export async function getServerDemoPedidoDetail(id: string) {
+  const data = await readServerDemoData();
   const pedido = data.pedidos.find((p) => p.id === id);
   if (!pedido) return null;
   return {

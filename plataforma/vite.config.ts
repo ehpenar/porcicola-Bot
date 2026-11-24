@@ -10,6 +10,10 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
+  // Netlify auto-detecta el preset; lo fijamos para deploys claros fuera de Lovable.
+  nitro: {
+    preset: "netlify",
+  },
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this

@@ -1,0 +1,15 @@
+# Porcicola Ops — deploy desde la carpeta plataforma/ (TanStack Start + Nitro)
+[build]
+  base = "plataforma"
+  command = "bun run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # Nitro apunta a Netlify Functions (también fijado en vite.config.ts)
+  NITRO_PRESET = "netlify"
+
+# Variables recomendadas en el dashboard (Project configuration → Environment variables):
+#   VITE_DEMO_MODE=true
+#   ENLACE_API_KEY=porcicola-enlace-demo
+#   VITE_ENLACE_API_KEY=porcicola-enlace-demo

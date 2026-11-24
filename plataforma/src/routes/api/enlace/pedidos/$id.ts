@@ -19,7 +19,7 @@ export const Route = createFileRoute("/api/enlace/pedidos/$id")({
             { status: 404 },
           );
         }
-        const detail = getServerDemoPedidoDetail(params.id);
+        const detail = await getServerDemoPedidoDetail(params.id);
         if (!detail) {
           return Response.json({ ok: false, error: "Pedido no encontrado" }, { status: 404 });
         }

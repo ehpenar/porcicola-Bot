@@ -14,12 +14,36 @@ bun run dev   # http://localhost:8080
 
 `VITE_DEMO_MODE=true` en `.env`. Pon `false` cuando conectes Auth real.
 
+## Deploy Netlify
+
+Sitio: **https://porcicolabot.netlify.app**
+
+Build (ya en `netlify.toml` del monorepo):
+
+| Setting | Valor |
+|---------|--------|
+| Base directory | `plataforma` |
+| Build command | `bun run build` |
+| Publish directory | `dist` |
+
+Variables de entorno en Netlify (Project configuration → Environment variables):
+
+| Key | Value | Scopes |
+|-----|--------|--------|
+| `VITE_DEMO_MODE` | `true` | Builds + Functions |
+| `ENLACE_API_KEY` | `porcicola-enlace-demo` | Builds + Functions |
+| `VITE_ENLACE_API_KEY` | `porcicola-enlace-demo` | Builds + Functions |
+
+Tras el deploy, el enlace del bot es:
+
+`https://porcicolabot.netlify.app/api/enlace/pedidos`
+
 ## Enlace n8n → plataforma
 
 El bot WhatsApp (n8n), cuando el pedido queda **`confirmado`**, hace `POST` a este endpoint y la app crea el pedido en estado **`capturado`** (cola Comercial → Por verificar).
 
 ```
-POST /api/enlace/pedidos
+POST https://porcicolabot.netlify.app/api/enlace/pedidos
 Header: Content-Type: application/json
 Header: X-Enlace-Secret: porcicola-enlace-demo
 Body: ={{ $json }}   # item crudo del AI Agent (output string + wid)

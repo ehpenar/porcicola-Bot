@@ -38,7 +38,7 @@ export const Route = createFileRoute("/api/enlace/pedidos")({
           throw e;
         }
         if (isDemoMode()) {
-          return json({ ok: true, mode: "demo", pedidos: listServerDemoPedidos() });
+          return json({ ok: true, mode: "demo", pedidos: await listServerDemoPedidos() });
         }
         return json({
           ok: true,

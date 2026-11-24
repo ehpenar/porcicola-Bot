@@ -11,17 +11,31 @@ type ServerDemoData = {
 const BLOB_STORE = "porcicola-enlace";
 const BLOB_KEY = "pedidos.json";
 
+/** Cache en memoria de la instancia (Functions warm). */
+let memoryCache: ServerDemoData | null = null;
+
 function empty(): ServerDemoData {
   return { pedidos: [], lineas: [], eventos: [] };
 }
 
-function isNetlifyRuntime() {
-  return Boolean(process.env.NETLIFY || process.env.NETLIFY_DEV || process.env.CONTEXT);
+function clone(data: ServerDemoData): ServerDemoData {
+  return JSON.parse(JSON.stringify(data)) as ServerDemoData;
 }
 
-/** Local o /tmp en Functions; en Netlify preferimos Blobs (persistente entre instancias). */
+/** Netlify / Lambda / cualquier runtime serverless. */
+function isServerlessRuntime() {
+  return Boolean(
+    process.env.NETLIFY ||
+      process.env.NETLIFY_DEV ||
+      process.env.CONTEXT ||
+      process.env.AWS_LAMBDA_FUNCTION_NAME ||
+      process.env.LAMBDA_TASK_ROOT,
+  );
+}
+
 function localDataFile() {
-  const base = process.env.NETLIFY ? "/tmp" : join(process.cwd(), ".data");
+  // En Functions el cwd (/var/task) es de solo lectura → siempre /tmp ahí.
+  const base = isServerlessRuntime() ? "/tmp" : join(process.cwd(), ".data");
   return { dir: base, file: join(base, "enlace-pedidos.json") };
 }
 
@@ -41,44 +55,85 @@ function writeLocalFile(data: ServerDemoData) {
   writeFileSync(file, JSON.stringify(data, null, 2), "utf8");
 }
 
+async function openBlobStore() {
+  const { getStore, getDeployStore } = await import("@netlify/blobs");
+  try {
+    return getStore(BLOB_STORE);
+  } catch {
+    // Algunas runtimes Nitro no inyectan contexto de site store.
+  }
+  try {
+    return getDeployStore(BLOB_STORE);
+  } catch {
+    // último recurso abajo
+  }
+  const siteID = process.env.SITE_ID || process.env.NETLIFY_SITE_ID || process.env.BLOBS_SITE_ID;
+  const token =
+    process.env.NETLIFY_BLOBS_TOKEN ||
+    process.env.BLOBS_TOKEN ||
+    process.env.NETLIFY_API_TOKEN ||
+    process.env.NETLIFY_AUTH_TOKEN;
+  if (siteID && token) {
+    return getStore({ name: BLOB_STORE, siteID, token });
+  }
+  throw new Error("No hay contexto Netlify Blobs disponible");
+}
+
 async function readFromBlobs(): Promise<ServerDemoData | null> {
   try {
-    const { getStore } = await import("@netlify/blobs");
-    const store = getStore(BLOB_STORE);
+    const store = await openBlobStore();
     const data = await store.get(BLOB_KEY, { type: "json" });
-    if (!data || typeof data !== "object") return empty();
+    if (data == null) return empty();
+    if (typeof data !== "object") return empty();
     return data as ServerDemoData;
   } catch (err) {
-    console.warn("[enlace] Netlify Blobs read failed, using local/tmp fallback", err);
+    console.warn("[enlace] Blobs read failed → memory/tmp", err instanceof Error ? err.message : err);
     return null;
   }
 }
 
 async function writeToBlobs(data: ServerDemoData): Promise<boolean> {
   try {
-    const { getStore } = await import("@netlify/blobs");
-    const store = getStore(BLOB_STORE);
+    const store = await openBlobStore();
     await store.setJSON(BLOB_KEY, data);
     return true;
   } catch (err) {
-    console.warn("[enlace] Netlify Blobs write failed, using local/tmp fallback", err);
+    console.warn("[enlace] Blobs write failed → memory/tmp", err instanceof Error ? err.message : err);
     return false;
   }
 }
 
 export async function readServerDemoData(): Promise<ServerDemoData> {
-  if (isNetlifyRuntime()) {
+  if (memoryCache) return clone(memoryCache);
+
+  if (isServerlessRuntime()) {
     const fromBlobs = await readFromBlobs();
-    if (fromBlobs) return fromBlobs;
+    if (fromBlobs) {
+      memoryCache = clone(fromBlobs);
+      return clone(fromBlobs);
+    }
   }
-  return readLocalFile();
+
+  const local = readLocalFile();
+  memoryCache = clone(local);
+  return clone(local);
 }
 
 export async function writeServerDemoData(data: ServerDemoData): Promise<void> {
-  if (isNetlifyRuntime()) {
+  memoryCache = clone(data);
+
+  if (isServerlessRuntime()) {
     const ok = await writeToBlobs(data);
-    if (ok) return;
+    if (ok) {
+      try {
+        writeLocalFile(data);
+      } catch {
+        /* /tmp opcional */
+      }
+      return;
+    }
   }
+
   writeLocalFile(data);
 }
 

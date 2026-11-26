@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import type { StockLineaAjuste } from "@/lib/stock";
-import { enviarAvisoStockWebhook } from "@/lib/stock-webhook.server";
+import { enviarAvisoStockWebhook, type StockLineaAjuste } from "@/lib/stock";
 import type { Pedido } from "@/lib/pedidos";
 
 const bodySchema = z.object({

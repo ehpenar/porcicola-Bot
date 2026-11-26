@@ -50,11 +50,11 @@ Variables de entorno en Netlify (Project configuration → Environment variables
 
 | Key | Value | ¿Secret? |
 |-----|--------|----------|
-| `VITE_DEMO_MODE` | `true` | **No** |
-| `ENLACE_API_KEY` | `porcicola-enlace-demo` | **No** en demo (si es secret, Netlify falla el build) |
-| `STOCK_WEBHOOK_URL` | URL webhook n8n | **No** |
+| `VITE_DEMO_MODE` | `true` | No |
+| `ENLACE_API_KEY` | `porcicola-enlace-demo` | Sí |
+| `STOCK_WEBHOOK_URL` | URL webhook n8n (aviso stock) | No |
 
-Si ya las marcaste secret: quita el check “secret” o deja `SECRETS_SCAN_OMIT_KEYS` (ya está en `netlify.toml`). Borra `VITE_ENLACE_API_KEY` si existe.
+No uses `VITE_ENLACE_API_KEY` como secret en Netlify (rompe el build).
 
 Tras el deploy, el enlace del bot es:
 

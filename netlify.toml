@@ -6,12 +6,10 @@
 
 [build.environment]
   NODE_VERSION = "22"
+  # Nitro apunta a Netlify Functions (también fijado en vite.config.ts)
   NITRO_PRESET = "netlify"
-  # El valor demo de ENLACE_API_KEY también aparece en el JS del cliente (fallback).
-  # Si lo marcas "secret" en el dashboard, el scan falla → omitimos esas keys del scan.
-  SECRETS_SCAN_OMIT_KEYS = "ENLACE_API_KEY,STOCK_WEBHOOK_URL,VITE_ENLACE_API_KEY"
 
-# Env recomendadas en el dashboard (NO marques VITE_* como secret):
+# Variables recomendadas en el dashboard (Project configuration → Environment variables):
 #   VITE_DEMO_MODE=true
-#   ENLACE_API_KEY=porcicola-enlace-demo   ← mejor SIN secret en demo
-#   STOCK_WEBHOOK_URL=https://ehpenar.app.n8n.cloud/webhook-test/...
+#   ENLACE_API_KEY=porcicola-enlace-demo
+#   VITE_ENLACE_API_KEY=porcicola-enlace-demo

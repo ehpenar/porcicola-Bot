@@ -76,7 +76,7 @@ Cliente (WhatsApp)
    - la plataforma hace `POST` al webhook n8n (`STOCK_WEBHOOK_URL`) con `chatId` + `mensaje` para el cliente  
 
 Webhook (test actual):  
-`https://ehpenar.app.n8n.cloud/webhook-test/b4d0784c-8649-4c78-bc0d-285b2476296e`  
+`https://ehpenar.app.n8n.cloud/webhook/b4d0784c-8649-4c78-bc0d-285b2476296e`  
 
 Detalle del payload: [`elementos/ENLACE_N8N_PLATAFORMA.md`](elementos/ENLACE_N8N_PLATAFORMA.md).
 

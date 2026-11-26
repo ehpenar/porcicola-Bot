@@ -14,6 +14,26 @@ bun run dev   # http://localhost:8080
 
 `VITE_DEMO_MODE=true` en `.env`. Pon `false` cuando conectes Auth real.
 
+## Flujo de compra y verificaciones
+
+```text
+Cliente (bot) → capturado
+  → ① Comercial verifica → verificado_comercial
+  → ② Carnicero confirma stock (disponible / menos / no hay) → stock_verificado
+       + webhook n8n avisa al cliente
+  → ③ Contable cobra y valida pago → liberado_produccion
+  → ④ Carnicero produce → listo_despacho
+  → ⑤ Contable notifica y archiva
+```
+
+| Verificación | Rol | Resultado |
+|--------------|-----|-----------|
+| Datos del pedido | Comercial | `verificado_comercial` |
+| Stock por producto | Carnicero | `stock_verificado` + mensaje WhatsApp |
+| Pago | Contable | libera a producción |
+
+Detalle completo en el [README del monorepo](../README.md#flujo-de-compra-y-verificaciones-oficial).
+
 ## Deploy Netlify
 
 Sitio: **https://porcicolabot.netlify.app**
@@ -30,10 +50,11 @@ Variables de entorno en Netlify (Project configuration → Environment variables
 
 | Key | Value | ¿Secret? |
 |-----|--------|----------|
-| `VITE_DEMO_MODE` | `true` | No (es `VITE_*`, va al browser) |
-| `ENLACE_API_KEY` | `porcicola-enlace-demo` | Sí (solo servidor / n8n) |
+| `VITE_DEMO_MODE` | `true` | No |
+| `ENLACE_API_KEY` | `porcicola-enlace-demo` | Sí |
+| `STOCK_WEBHOOK_URL` | URL webhook n8n (aviso stock) | No |
 
-No uses `VITE_ENLACE_API_KEY` en Netlify: si la marcas secret, el build falla (“Exposed secrets”). En demo el cliente ya usa el fallback `porcicola-enlace-demo`.
+No uses `VITE_ENLACE_API_KEY` como secret en Netlify (rompe el build).
 
 Tras el deploy, el enlace del bot es:
 
@@ -67,11 +88,11 @@ Guía completa (nodo HTTP Request, curl, mapeo de campos):
 
 ## Roles
 
-| Rol | Ruta |
-|-----|------|
-| General | `/general` |
-| Comercial | `/comercial` |
-| Contable | `/contable` |
-| Carnicero | `/carnicero` |
+| Rol | Ruta | En el flujo |
+|-----|------|-------------|
+| General | `/general` | Admin / KPIs |
+| Comercial | `/comercial` | Verifica datos del pedido |
+| Carnicero | `/carnicero` | Verifica stock → luego produce |
+| Contable | `/contable` | Cobra solo tras stock OK |
 
 Stack: React 19 · TanStack Start/Router/Query · Tailwind · shadcn/ui · (Supabase preparado, demo activo).

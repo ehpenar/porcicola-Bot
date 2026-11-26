@@ -1,15 +1,84 @@
 # porcicola-Bot
 
-Monorepo de la **Porcicola**: automatización de ventas por WhatsApp (n8n) + documentación de proceso + plataforma web de operaciones (4 roles).
+Monorepo de la **Porcicola**: bot WhatsApp (n8n) + plataforma web de operaciones (4 roles) + enlace entre ambos.
 
 | Pieza | Estado |
 |-------|--------|
 | Bot WhatsApp (n8n) | **v5** — conversación coherente con el cliente |
-| Documentación / proceso / prompts Lovable | En `elementos/` |
-| Plataforma web (Comercial / Contable / Carnicero / General) | En `plataforma/` — **modo demo local (sin Supabase Auth)** |
-| **Enlace n8n → plataforma** | **`POST /api/enlace/pedidos`** — pedidos confirmados del bot → cola Comercial |
+| Documentación / proceso / prompts | En `elementos/` |
+| Plataforma web | En `plataforma/` — demo en https://porcicolabot.netlify.app |
+| Enlace n8n → plataforma | `POST /api/enlace/pedidos` |
+| Aviso stock → cliente | `POST` webhook n8n tras verificación del Carnicero |
 
 Repo: [ehpenar/porcicola-Bot](https://github.com/ehpenar/porcicola-Bot)
+
+---
+
+## Flujo de compra y verificaciones (oficial)
+
+Un solo pedido cambia de estado. Cada rol solo actúa en su turno.
+
+```text
+Cliente (WhatsApp)
+        │  bot confirma comanda
+        ▼
+   capturado          ← llega a Comercial («Por verificar»)
+        │
+        │  ① Comercial verifica (o rechaza / manda a corrección)
+        ▼
+ verificado_comercial ← llega a Carnicero («Verificar stock»)
+        │
+        │  ② Carnicero marca por línea: Disponible / Hay menos / No hay
+        │     → Confirmar disponibilidad
+        │     → webhook n8n avisa al cliente (faltantes o cantidades menores)
+        ▼
+  stock_verificado    ← llega a Contable («Por revisar / cobrar»)
+        │
+        │  ③ Contable solicita pago → cliente recibe cuenta/QR
+        ▼
+  pago_solicitado
+        │  cliente paga + comprobante
+        ▼
+ comprobante_recibido
+        │  ④ Contable valida pago y libera
+        ▼
+ liberado_produccion  ← Carnicero corta / empaca
+        │  ⑤ Carnicero: listo para despacho
+        ▼
+  listo_despacho
+        │  ⑥ Contable notifica cliente y archiva
+        ▼
+    archivado
+```
+
+### Quién verifica qué
+
+| # | Verificación | Quién | Qué decide | Estado resultante |
+|---|--------------|-------|------------|-------------------|
+| 1 | Datos del pedido | **Comercial** | ¿La comanda es correcta? (cliente, productos, cantidades) | `verificado_comercial` o rechazo / corrección |
+| 2 | Stock / disponibilidad | **Carnicero** | Por cada producto: hay, hay menos, o no hay | `stock_verificado` + aviso WhatsApp |
+| 3 | Cobro | **Contable** | Solicitar pago al cliente | `pago_solicitado` |
+| 4 | Pago recibido | **Contable** | ¿El comprobante cuadra? → liberar a producción | `liberado_produccion` |
+| 5 | Producción | **Carnicero** | Corte y empaque terminados | `listo_despacho` |
+| 6 | Cierre | **Contable** | Avisar al cliente y archivar | `archivado` |
+
+### Detalle de la verificación de stock (Carnicero)
+
+1. Tras Comercial, el pedido aparece en **Carnicero → Verificar stock**.
+2. Al abrir el pedido hay un panel con el listado de productos.
+3. Por cada línea el carnicero elige:
+   - **Disponible** — se confirma la cantidad pedida  
+   - **Hay menos** — indica la cantidad real disponible  
+   - **No hay** — cantidad disponible = 0  
+4. Al **Confirmar disponibilidad**:
+   - el monto estimado se recalcula con lo disponible  
+   - el pedido pasa a Contable (`stock_verificado`)  
+   - la plataforma hace `POST` al webhook n8n (`STOCK_WEBHOOK_URL`) con `chatId` + `mensaje` para el cliente  
+
+Webhook (test actual):  
+`https://ehpenar.app.n8n.cloud/webhook-test/b4d0784c-8649-4c78-bc0d-285b2476296e`  
+
+Detalle del payload: [`elementos/ENLACE_N8N_PLATAFORMA.md`](elementos/ENLACE_N8N_PLATAFORMA.md).
 
 ---
 
@@ -19,174 +88,110 @@ Repo: [ehpenar/porcicola-Bot](https://github.com/ehpenar/porcicola-Bot)
 porcicola-Bot/
 ├── workflows/          # Workflows n8n (v3 archive → v5 actual)
 ├── elementos/          # Proceso, análisis, diagramas, prompts Lovable
-└── plataforma/         # App web Porcicola Ops (React / TanStack / demo mode)
+├── plataforma/         # App web Porcicola Ops
+└── netlify.toml        # Deploy Netlify (base: plataforma)
 ```
 
-### `workflows/` — bot WhatsApp
+### Roles en la plataforma
 
-| Archivo | Descripción |
-|---------|-------------|
-| `workflows/wappBotPorcicola.json` | Workflow actual (**v5**) |
-| `workflows/wappBotPorcicola-v5.json` | Copia explícita v5 |
-| `workflows/wappBotPorcicola-v4.json` | v4 anti-loop |
-| `workflows/archive/…` | Históricos v3 / v4 |
-
-Ver detalle de v3→v5 más abajo.
-
-### `elementos/` — proceso y prompts
-
-| Archivo | Para qué |
-|---------|----------|
-| `PROCESO_ROBUSTO_PLATAFORMA.md` | Proceso oficial (prepago + liberación) |
-| `PROCESO_ESTADOS_Y_VISTAS.md` | Estados, permisos, colas |
-| `ANALISIS_PROCESO_SISTEMA.md` | Análisis del diagrama conceptual |
-| `PROMPT_LOVABLE_PLATAFORMA.md` | Prompt inicial para generar la app en Lovable |
-| `PROMPT_LOVABLE_CONTINUAR.md` | Prompt para retomar pantallas en Lovable |
-| `AUDITORIA_LOVABLE_PIXEL_PERFECT.md` | Auditoría del export Lovable |
-| **`ENLACE_N8N_PLATAFORMA.md`** | **Contrato HTTP n8n → plataforma** |
-| `DiagramaConceptualPorcicola.json` + captura | Diagrama original |
-| `README_ELEMENTOS.md` | Índice de lectura |
-
-### `plataforma/` — app web + enlace del bot
-
-App **Porcicola Ops** con 4 perfiles:
-
-| Rol | Ruta | Función |
-|-----|------|---------|
+| Rol | Ruta | Función en el flujo |
+|-----|------|---------------------|
 | General | `/general` | KPIs, todos los pedidos, usuarios, config pago |
-| Comercial | `/comercial` | Verificar / rechazar / crear pedidos |
-| Contable | `/contable` | Cobrar, validar comprobante, liberar, archivar |
-| Carnicero | `/carnicero` | Espera (lectura) → producción → listo |
+| Comercial | `/comercial` | Verificar / rechazar / corregir / crear pedidos |
+| Carnicero | `/carnicero` | Verificar stock → (luego) producción → listo |
+| Contable | `/contable` | Cobrar (solo tras stock), validar pago, liberar, archivar |
 
-**Importante — modo demo (sin Supabase):**
+### Modo demo
 
-- Por defecto la app corre con `VITE_DEMO_MODE=true`.
-- En `/login` aparecen botones **Entrar como General / Comercial / Contable / Carnicero**.
-- Auth y pedidos viven en `localStorage` del navegador (datos de prueba).
-- Sirve para recorrer vistas y el flujo feliz **sin** crear usuarios en Supabase.
-- Más adelante: `VITE_DEMO_MODE=false` + claves Supabase para Auth/DB reales.
-
-#### Cómo correr la plataforma en local
+- `VITE_DEMO_MODE=true` (por defecto).
+- Login por rol, sin Supabase Auth.
+- Pedidos del bot se sincronizan a la UI cada ~5s.
 
 ```sh
 cd plataforma
-cp .env.example .env   # deja VITE_DEMO_MODE=true
-bun install            # o npm install
-bun run dev            # o npm run dev
+cp .env.example .env
+bun install
+bun run dev   # http://localhost:8080
 ```
-
-Abre http://localhost:8080/login y elige un rol.
 
 Flujo de prueba sugerido:
 
 1. Comercial → Crear pedido demo → **Verificar pedido**
-2. Contable → **Solicitar pago** → Adjuntar comprobante → **Validar pago y liberar**
-3. Carnicero → **Marcar listo para despacho**
-4. Contable → **Notificar cliente y archivar**
-5. Cerrar sesión y entrar como otro rol para ver sus colas
+2. Carnicero → **Verificar stock** (marcar disponibilidad) → Confirmar
+3. Contable → **Solicitar pago** → Adjuntar comprobante → **Validar pago y liberar**
+4. Carnicero → **Marcar listo para despacho**
+5. Contable → **Notificar cliente y archivar**
 
-#### Enlace n8n → plataforma (bot crea pedidos reales en la UI)
+### Enlace n8n → plataforma
 
-**Producción (Netlify):** https://porcicolabot.netlify.app  
-
-Cuando el workflow marca el pedido como **confirmado**, n8n debe llamar:
+**Producción:** https://porcicolabot.netlify.app  
 
 ```text
 POST https://porcicolabot.netlify.app/api/enlace/pedidos
 Headers:
   Content-Type: application/json
   X-Enlace-Secret: porcicola-enlace-demo
-Body: ={{ $json }}   # item del AI Agent (output + body.instanceData.wid)
+Body: ={{ $json }}
 ```
 
-Local: `http://localhost:8080/api/enlace/pedidos` (misma auth/body).
+Crea el pedido en **`capturado`**. Guía: [`elementos/ENLACE_N8N_PLATAFORMA.md`](elementos/ENLACE_N8N_PLATAFORMA.md).
 
-- La plataforma parsea el JSON de comanda (aunque venga como string en `output`).
-- Toma el WhatsApp id desde `body.instanceData.wid`.
-- Crea el pedido en estado **`capturado`** / origen **`bot`**.
-- En demo, Comercial lo ve en **Por verificar** (poll ~5s).
-- En Netlify los pedidos del enlace se guardan en **Netlify Blobs** (no en disco).
+### Netlify (env)
 
-**Env vars en Netlify:** `VITE_DEMO_MODE=true` (no secret) y `ENLACE_API_KEY=porcicola-enlace-demo` (sí secret). No subas `VITE_ENLACE_API_KEY` como secret — Netlify corta el build. Build: base `plataforma`, command `bun run build`, publish `dist` (`netlify.toml`).
+| Variable | ¿Secret? | Uso |
+|----------|----------|-----|
+| `VITE_DEMO_MODE=true` | No | Demo UI |
+| `ENLACE_API_KEY` | Sí | Auth del POST de pedidos |
+| `STOCK_WEBHOOK_URL` | No | Aviso al cliente tras stock |
 
-Detalle: [`elementos/ENLACE_N8N_PLATAFORMA.md`](elementos/ENLACE_N8N_PLATAFORMA.md).
-
----
-
-## Cambios de este commit (resumen)
-
-1. **Endpoint enlace** — `POST /api/enlace/pedidos` (+ GET listado/detalle en demo).
-2. **Ingesta flexible** — acepta el item crudo de n8n (`output` string + `wid`), comanda parseada o array.
-3. **UI demo** — sincroniza pedidos del bot a `localStorage` y refresca colas cada ~5s.
-4. **Docs** — `ENLACE_N8N_PLATAFORMA.md` + README actualizado.
-
-Pendiente (fuera de este commit): Auth/DB Supabase real en producción (`VITE_DEMO_MODE=false` + service role).
+Build: base `plataforma`, `bun run build`, publish `dist` (`netlify.toml`).
 
 ---
 
-## Bot WhatsApp — v5 (actual)
+## Cambios recientes (stock + flujo)
 
-> Conversación coherente: saluda, toma pedido, aclara cortes/cantidades. Validada en uso real.
+1. Nuevo estado **`stock_verificado`** entre Comercial y Contable.
+2. Cola **Carnicero → Verificar stock** con panel por producto (disponible / menos / no hay).
+3. Contable solo ve pedidos **después** de la confirmación de stock.
+4. `POST /api/enlace/aviso-stock` → webhook n8n con mensaje para WhatsApp.
+5. README y docs actualizados con el flujo de compra y verificaciones.
 
-### Comparación rápida
+---
+
+## Bot WhatsApp — v5
 
 | Aspecto | v3 | v4 | **v5** |
 |---------|----|----|--------|
-| Vendedor + catálogo PLU | Sí | Sí | **Sí (prompt completo)** |
+| Vendedor + catálogo PLU | Sí | Sí | **Sí** |
 | Memoria | Sí | Ventana 10 | **Ventana 3** |
 | Filtro entrada | No | incoming + text | **IF: existe texto** |
-| Anti-duplicado `idMessage` | No | Sí | No |
-| Evitar JSON al cliente | No | Code salida segura | **IF1: contiene `confirmado`** |
+| Evitar JSON al cliente | No | Code | **IF1: `confirmado`** |
 | Loop con "hola" | **Sí** | Mitigado | Mitigado |
-
-### Flujo de compra (plataforma)
-
-```text
-Cliente (WhatsApp/bot) → capturado
-  → Comercial verifica → verificado_comercial (Por verificar stock)
-  → Carnicero marca disponibilidad → stock_verificado
-       + webhook n8n avisa al cliente si falta producto o hay menos
-  → Contable solicita / valida pago → liberado_produccion
-  → Carnicero corta → listo_despacho
-  → Contable notifica y archiva
-```
-
-### Flujo v5 (+ enlace a plataforma)
 
 ```text
 Webhook Green-API
-  → IF texto existe?
-       ├─ No → fin
-       └─ Sí → Edit Fields → AI Agent → Edit Fields1
-                → IF1 contiene "confirmado"?
-                     ├─ Sí → HTTP Request → POST /api/enlace/pedidos
-                     │         (no manda el JSON al WhatsApp)
-                     └─ No → HTTP sendMessage (respuesta al cliente)
+  → IF texto?
+       └─ Sí → AI Agent → IF1 confirmado?
+              ├─ Sí → POST /api/enlace/pedidos  (no manda JSON al chat)
+              └─ No → sendMessage al cliente
 ```
-
-### Importar en n8n
-
-1. Import `workflows/wappBotPorcicola.json`
-2. Credenciales OpenAI
-3. URL Green-API `sendMessage` (placeholders en el JSON)
-4. Webhook URL de producción en Green-API
-5. Activar solo este workflow
 
 ---
 
 ## Seguridad
 
 - Tokens Green-API / `.env` reales **no** van en el repo.
-- `plataforma/.env.example` solo activa demo mode.
-- Originales locales `(3)`/`(4)`/`(5)` con secretos quedan en `.gitignore`.
+- No marques variables `VITE_*` como secret en Netlify (rompe el build).
+- `ENLACE_API_KEY` sí puede ir como secret.
 
 ---
 
-## Historial de commits (orientativo)
+## Historial (orientativo)
 
-1. v3 — bot + bug de loop documentado  
+1. v3 — bot  
 2. v4 — anti-loop  
-3. v5 — prompt comercial + IF texto/JSON  
-4. elementos + prompts Lovable + plataforma en modo demo  
-5. **Este commit** — enlace n8n → `POST /api/enlace/pedidos` (pedidos del bot en Comercial)  
-
+3. v5 — prompt + IF texto/JSON  
+4. elementos + plataforma demo  
+5. enlace n8n → pedidos  
+6. Netlify + Blobs  
+7. **Verificación de stock (Carnicero) antes de Contable + webhook al cliente**  

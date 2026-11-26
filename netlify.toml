@@ -14,4 +14,4 @@
 # Env recomendadas en el dashboard (NO marques VITE_* como secret):
 #   VITE_DEMO_MODE=true
 #   ENLACE_API_KEY=porcicola-enlace-demo   ← mejor SIN secret en demo
-#   STOCK_WEBHOOK_URL=https://ehpenar.app.n8n.cloud/webhook-test/...
+#   STOCK_WEBHOOK_URL=https://ehpenar.app.n8n.cloud/webhook/b4d0784c-8649-4c78-bc0d-285b2476296e

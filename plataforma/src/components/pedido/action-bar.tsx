@@ -29,7 +29,13 @@ type ActionDef = {
 };
 
 const BY_ACCION: Record<string, Omit<ActionDef, "id" | "to">> = {
-  verificar_pedido: { label: "Verificar pedido", icon: <CheckCircle2 />, variant: "default", successToast: "Pedido verificado. Ya está en la cola de Contable." },
+  verificar_pedido: { label: "Verificar pedido", icon: <CheckCircle2 />, variant: "default", successToast: "Pedido verificado. Pasa al Carnicero para confirmar stock." },
+  verificar_stock: {
+    label: "Confirmar disponibilidad",
+    icon: <PackageCheck />,
+    variant: "success",
+    successToast: "Stock verificado. Contable ya puede cobrar.",
+  },
   rechazar_pedido: {
     label: "Rechazar",
     icon: <XCircle />,
@@ -88,7 +94,8 @@ const BY_ACCION: Record<string, Omit<ActionDef, "id" | "to">> = {
   },
 };
 
-const HIDDEN = new Set(["marcar_comprobante_recibido", "notificar_cliente"]);
+/** verificar_stock se hace en StockCheckPanel (listado de productos). */
+const HIDDEN = new Set(["marcar_comprobante_recibido", "notificar_cliente", "verificar_stock"]);
 
 export function actionsFor(role: AppRole | null, status: PedidoStatus): ActionDef[] {
   const list: ActionDef[] = allowedTransitions(role, status)
@@ -112,8 +119,12 @@ export function actionsFor(role: AppRole | null, status: PedidoStatus): ActionDe
 }
 
 function readOnlyMessage(role: AppRole | null, status: PedidoStatus) {
-  if (role === "carnicero" && ["verificado_comercial", "pago_solicitado", "comprobante_recibido"].includes(status))
+  if (role === "carnicero" && status === "verificado_comercial")
+    return "Usa el panel de disponibilidad arriba para marcar stock y confirmar.";
+  if (role === "carnicero" && ["stock_verificado", "pago_solicitado", "comprobante_recibido"].includes(status))
     return "Solo lectura — esperando que Contable valide el pago.";
+  if (role === "contable" && status === "verificado_comercial")
+    return "Esperando que el Carnicero confirme disponibilidad de stock.";
   if (status === "liberado_produccion") return "En producción con el carnicero.";
   if (["archivado", "rechazado", "cancelado"].includes(status)) return "Pedido cerrado. Solo lectura.";
   return "No hay acciones disponibles para tu rol en este estado.";

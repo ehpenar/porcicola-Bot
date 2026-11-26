@@ -25,7 +25,8 @@ export const ROLE_HOME: Record<AppRole, "/general" | "/comercial" | "/contable" 
 
 export const STATUS_LABEL: Record<PedidoStatus, string> = {
   capturado: "Capturado",
-  verificado_comercial: "Verificado comercial",
+  verificado_comercial: "Por verificar stock",
+  stock_verificado: "Stock verificado",
   pago_solicitado: "Pago solicitado",
   comprobante_recibido: "Comprobante recibido",
   liberado_produccion: "En producción",
@@ -41,6 +42,7 @@ export const STATUS_LABEL: Record<PedidoStatus, string> = {
 export const STATUS_CLASS: Record<PedidoStatus, string> = {
   capturado: "bg-status-capturado/10 text-status-capturado border-status-capturado/30",
   verificado_comercial: "bg-status-verificado/10 text-status-verificado border-status-verificado/30",
+  stock_verificado: "bg-status-verificado/15 text-status-verificado border-status-verificado/40",
   pago_solicitado: "bg-status-pago/12 text-status-pago border-status-pago/35",
   comprobante_recibido: "bg-status-comprobante/12 text-status-comprobante border-status-comprobante/35",
   liberado_produccion: "bg-status-produccion/10 text-status-produccion border-status-produccion/35",
@@ -55,6 +57,7 @@ export const STATUS_CLASS: Record<PedidoStatus, string> = {
 export const STATUS_DOT: Record<PedidoStatus, string> = {
   capturado: "bg-status-capturado",
   verificado_comercial: "bg-status-verificado",
+  stock_verificado: "bg-status-verificado",
   pago_solicitado: "bg-status-pago",
   comprobante_recibido: "bg-status-comprobante",
   liberado_produccion: "bg-status-produccion",
@@ -77,11 +80,13 @@ export const ACCION_LABEL: Record<string, string> = {
   pedido_creado: "Pedido creado",
   pedido_editado: "Pedido editado",
   verificar_pedido: "Verificar pedido",
+  verificar_stock: "Verificar disponibilidad de stock",
   rechazar_pedido: "Pedido rechazado",
   enviar_a_correccion: "Enviado a corrección",
   regresar_a_captura: "Regresado a captura",
   solicitar_pago: "Solicitar pago al cliente",
   devolver_a_comercial: "Devuelto a comercial",
+  aviso_stock_cliente: "Aviso de stock al cliente",
   marcar_comprobante_recibido: "Comprobante recibido",
   comprobante_adjuntado: "Comprobante adjuntado",
   cancelar_pedido: "Pedido cancelado",
@@ -108,8 +113,10 @@ export const TRANSITIONS: Transition[] = [
   { from: "capturado", to: "verificado_comercial", role: "comercial", accion: "verificar_pedido", requiresNote: false },
   { from: "capturado", to: "rechazado", role: "comercial", accion: "rechazar_pedido", requiresNote: true },
   { from: "capturado", to: "en_correccion", role: "comercial", accion: "enviar_a_correccion", requiresNote: true },
-  { from: "verificado_comercial", to: "pago_solicitado", role: "contable", accion: "solicitar_pago", requiresNote: false },
-  { from: "verificado_comercial", to: "en_correccion", role: "contable", accion: "devolver_a_comercial", requiresNote: true },
+  // Tras comercial: Carnicero confirma stock → Contable cobra
+  { from: "verificado_comercial", to: "stock_verificado", role: "carnicero", accion: "verificar_stock", requiresNote: false },
+  { from: "stock_verificado", to: "pago_solicitado", role: "contable", accion: "solicitar_pago", requiresNote: false },
+  { from: "stock_verificado", to: "en_correccion", role: "contable", accion: "devolver_a_comercial", requiresNote: true },
   { from: "en_correccion", to: "capturado", role: "comercial", accion: "regresar_a_captura", requiresNote: false },
   { from: "en_correccion", to: "verificado_comercial", role: "comercial", accion: "verificar_pedido", requiresNote: false },
   { from: "pago_solicitado", to: "comprobante_recibido", role: "contable", accion: "marcar_comprobante_recibido", requiresNote: false },

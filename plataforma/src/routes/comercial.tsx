@@ -11,6 +11,7 @@ import { pedidosQueryOptions, requireRole } from "@/lib/queries";
 
 const EN_PROCESO: PedidoStatus[] = [
   "verificado_comercial",
+  "stock_verificado",
   "pago_solicitado",
   "comprobante_recibido",
   "liberado_produccion",

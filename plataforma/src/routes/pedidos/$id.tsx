@@ -18,6 +18,7 @@ import {
   Timeline,
   canEditPedido,
 } from "@/components/pedido/pedido-detail";
+import { StockCheckPanel } from "@/components/pedido/stock-check";
 import { canSeeMoney, ROLE_HOME } from "@/lib/pedidos";
 import { pedidoQueryOptions, requireRole } from "@/lib/queries";
 
@@ -75,6 +76,7 @@ function PedidoDetailPage() {
       <DetailHeader pedido={pedido} />
       <div className="space-y-4 px-4 py-5 pb-28 md:px-8">
         <ProduccionPanel pedido={pedido} />
+        <StockCheckPanel detail={detail} role={me.role} />
         <div className="grid gap-4 lg:grid-cols-3">
           <div className="space-y-4 lg:col-span-2">
             <ClientePanel pedido={pedido} editable={editable} onEdit={() => setEditOpen(true)} />

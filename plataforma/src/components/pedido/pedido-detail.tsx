@@ -175,7 +175,11 @@ export function LineasPanel({ detail, role }: { detail: PedidoDetail; role: AppR
   const { pedido, lineas } = detail;
   const money = canSeeMoney(role);
   const editReal = (role === "carnicero" || role === "general") && pedido.status === "liberado_produccion";
-  const showReal = editReal || lineas.some((l) => l.cantidad_real != null);
+  const showReal =
+    editReal ||
+    lineas.some((l) => l.cantidad_real != null) ||
+    pedido.status === "stock_verificado" ||
+    Boolean(pedido.novedades_carnicero);
   return (
     <Panel title={`Líneas (${lineas.length})`}>
       <div className="-mx-4 -my-4 overflow-x-auto">

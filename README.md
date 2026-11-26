@@ -139,6 +139,18 @@ Pendiente (fuera de este commit): Auth/DB Supabase real en producción (`VITE_DE
 | Evitar JSON al cliente | No | Code salida segura | **IF1: contiene `confirmado`** |
 | Loop con "hola" | **Sí** | Mitigado | Mitigado |
 
+### Flujo de compra (plataforma)
+
+```text
+Cliente (WhatsApp/bot) → capturado
+  → Comercial verifica → verificado_comercial (Por verificar stock)
+  → Carnicero marca disponibilidad → stock_verificado
+       + webhook n8n avisa al cliente si falta producto o hay menos
+  → Contable solicita / valida pago → liberado_produccion
+  → Carnicero corta → listo_despacho
+  → Contable notifica y archiva
+```
+
 ### Flujo v5 (+ enlace a plataforma)
 
 ```text

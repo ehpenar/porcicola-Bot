@@ -21,6 +21,7 @@ import { Route as GeneralEstadisticasRouteImport } from './routes/general/estadi
 import { Route as GeneralPedidosRouteImport } from './routes/general/pedidos'
 import { Route as GeneralUsuariosRouteImport } from './routes/general/usuarios'
 import { Route as PedidosIdRouteImport } from './routes/pedidos/$id'
+import { Route as ApiEnlaceAvisoStockRouteImport } from './routes/api/enlace/aviso-stock'
 import { Route as ApiEnlacePedidosRouteImport } from './routes/api/enlace/pedidos'
 import { Route as ApiEnlacePedidosIdRouteImport } from './routes/api/enlace/pedidos/$id'
 
@@ -84,6 +85,11 @@ const PedidosIdRoute = PedidosIdRouteImport.update({
   path: '/pedidos/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiEnlaceAvisoStockRoute = ApiEnlaceAvisoStockRouteImport.update({
+  id: '/api/enlace/aviso-stock',
+  path: '/api/enlace/aviso-stock',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiEnlacePedidosRoute = ApiEnlacePedidosRouteImport.update({
   id: '/api/enlace/pedidos',
   path: '/api/enlace/pedidos',
@@ -108,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/general/usuarios': typeof GeneralUsuariosRoute
   '/pedidos/$id': typeof PedidosIdRoute
   '/general/': typeof GeneralIndexRoute
+  '/api/enlace/aviso-stock': typeof ApiEnlaceAvisoStockRoute
   '/api/enlace/pedidos': typeof ApiEnlacePedidosRouteWithChildren
   '/api/enlace/pedidos/$id': typeof ApiEnlacePedidosIdRoute
 }
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/general/usuarios': typeof GeneralUsuariosRoute
   '/pedidos/$id': typeof PedidosIdRoute
   '/general': typeof GeneralIndexRoute
+  '/api/enlace/aviso-stock': typeof ApiEnlaceAvisoStockRoute
   '/api/enlace/pedidos': typeof ApiEnlacePedidosRouteWithChildren
   '/api/enlace/pedidos/$id': typeof ApiEnlacePedidosIdRoute
 }
@@ -141,6 +149,7 @@ export interface FileRoutesById {
   '/general/usuarios': typeof GeneralUsuariosRoute
   '/pedidos/$id': typeof PedidosIdRoute
   '/general/': typeof GeneralIndexRoute
+  '/api/enlace/aviso-stock': typeof ApiEnlaceAvisoStockRoute
   '/api/enlace/pedidos': typeof ApiEnlacePedidosRouteWithChildren
   '/api/enlace/pedidos/$id': typeof ApiEnlacePedidosIdRoute
 }
@@ -159,6 +168,7 @@ export interface FileRouteTypes {
     | '/general/usuarios'
     | '/pedidos/$id'
     | '/general/'
+    | '/api/enlace/aviso-stock'
     | '/api/enlace/pedidos'
     | '/api/enlace/pedidos/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -175,6 +185,7 @@ export interface FileRouteTypes {
     | '/general/usuarios'
     | '/pedidos/$id'
     | '/general'
+    | '/api/enlace/aviso-stock'
     | '/api/enlace/pedidos'
     | '/api/enlace/pedidos/$id'
   id:
@@ -191,6 +202,7 @@ export interface FileRouteTypes {
     | '/general/usuarios'
     | '/pedidos/$id'
     | '/general/'
+    | '/api/enlace/aviso-stock'
     | '/api/enlace/pedidos'
     | '/api/enlace/pedidos/$id'
   fileRoutesById: FileRoutesById
@@ -208,6 +220,7 @@ export interface RootRouteChildren {
   GeneralUsuariosRoute: typeof GeneralUsuariosRoute
   PedidosIdRoute: typeof PedidosIdRoute
   GeneralIndexRoute: typeof GeneralIndexRoute
+  ApiEnlaceAvisoStockRoute: typeof ApiEnlaceAvisoStockRoute
   ApiEnlacePedidosRoute: typeof ApiEnlacePedidosRouteWithChildren
 }
 
@@ -297,6 +310,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PedidosIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/enlace/aviso-stock': {
+      id: '/api/enlace/aviso-stock'
+      path: '/api/enlace/aviso-stock'
+      fullPath: '/api/enlace/aviso-stock'
+      preLoaderRoute: typeof ApiEnlaceAvisoStockRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/enlace/pedidos': {
       id: '/api/enlace/pedidos'
       path: '/api/enlace/pedidos'
@@ -338,6 +358,7 @@ const rootRouteChildren: RootRouteChildren = {
   GeneralUsuariosRoute: GeneralUsuariosRoute,
   PedidosIdRoute: PedidosIdRoute,
   GeneralIndexRoute: GeneralIndexRoute,
+  ApiEnlaceAvisoStockRoute: ApiEnlaceAvisoStockRoute,
   ApiEnlacePedidosRoute: ApiEnlacePedidosRouteWithChildren,
 }
 export const routeTree = rootRouteImport

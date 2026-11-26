@@ -8,7 +8,8 @@ import { QueueTabs } from "@/components/common/queue-tabs";
 import type { PedidoStatus } from "@/lib/pedidos";
 import { pedidosQueryOptions, requireRole } from "@/lib/queries";
 
-const ESPERA: PedidoStatus[] = ["verificado_comercial", "pago_solicitado", "comprobante_recibido"];
+const STOCK: PedidoStatus[] = ["verificado_comercial"];
+const ESPERA_PAGO: PedidoStatus[] = ["stock_verificado", "pago_solicitado", "comprobante_recibido"];
 const TRABAJO: PedidoStatus[] = ["liberado_produccion"];
 const REALIZADOS: PedidoStatus[] = ["archivado", "listo_despacho", "notificado_cliente"];
 
@@ -23,8 +24,8 @@ export const Route = createFileRoute("/carnicero")({
 
 function CarniceroPage() {
   const { me } = Route.useRouteContext();
-  const [tab, setTab] = useState("espera");
-  const all = [...ESPERA, ...TRABAJO, ...REALIZADOS] as PedidoStatus[];
+  const [tab, setTab] = useState("stock");
+  const all = [...STOCK, ...ESPERA_PAGO, ...TRABAJO, ...REALIZADOS] as PedidoStatus[];
   const q = useQuery(pedidosQueryOptions(all));
 
   const queues = useMemo(() => {
@@ -32,16 +33,30 @@ function CarniceroPage() {
     const filter = (statuses: PedidoStatus[]) => list.filter((p) => statuses.includes(p.status));
     return [
       {
-        value: "espera",
-        label: "Espera aprobación",
-        count: filter(ESPERA).length,
-        hint: "Solo lectura: Contable aún no valida el pago.",
+        value: "stock",
+        label: "Verificar stock",
+        count: filter(STOCK).length,
+        hint: "Tras Comercial: confirma si hay producto y cantidades.",
         content: (
           <PedidosTable
-            pedidos={filter(ESPERA)}
+            pedidos={filter(STOCK)}
+            showMoney={false}
+            emptyTitle="Nada por verificar"
+            emptyDescription="Cuando Comercial verifique un pedido, aparecerá aquí."
+          />
+        ),
+      },
+      {
+        value: "espera",
+        label: "Espera pago / liberación",
+        count: filter(ESPERA_PAGO).length,
+        hint: "Ya confirmaste stock; Contable cobra y libera.",
+        content: (
+          <PedidosTable
+            pedidos={filter(ESPERA_PAGO)}
             showMoney={false}
             readOnlyHint="Puedes anticipar la carga, pero no puedes empezar a cortar."
-            emptyTitle="Nada en espera"
+            emptyTitle="Nada en espera de pago"
           />
         ),
       },
@@ -77,7 +92,10 @@ function CarniceroPage() {
 
   return (
     <RoleLayout me={me}>
-      <PageHeader title="Carnicero" description="Cortas y empacas solo pedidos liberados. Los precios no se muestran." />
+      <PageHeader
+        title="Carnicero"
+        description="Primero confirmas stock; luego cortas solo pedidos liberados. Los precios no se muestran."
+      />
       <PageBody>{q.isLoading ? <PageSkeleton /> : <QueueTabs queues={queues} value={tab} onChange={setTab} />}</PageBody>
     </RoleLayout>
   );

@@ -550,6 +550,7 @@ export type Database = {
       pedido_status:
         | "capturado"
         | "verificado_comercial"
+        | "stock_verificado"
         | "pago_solicitado"
         | "comprobante_recibido"
         | "liberado_produccion"
@@ -693,6 +694,7 @@ export const Constants = {
       pedido_status: [
         "capturado",
         "verificado_comercial",
+        "stock_verificado",
         "pago_solicitado",
         "comprobante_recibido",
         "liberado_produccion",

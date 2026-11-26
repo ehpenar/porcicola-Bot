@@ -122,3 +122,25 @@ En modo demo el pedido aparece en la cola **Comercial** (se fusiona con el seed 
 | prep / empaque / observaciones | texto en línea + `notas_comercial` |
 
 Precios: si el producto no trae `precio_unitario`, se toma del catálogo PLU de la plataforma.
+
+## Aviso de stock (Carnicero → cliente)
+
+Tras verificar disponibilidad, la plataforma hace `POST` al webhook n8n:
+
+`STOCK_WEBHOOK_URL` (default test):  
+`https://ehpenar.app.n8n.cloud/webhook-test/b4d0784c-8649-4c78-bc0d-285b2476296e`
+
+Body ejemplo:
+
+```json
+{
+  "tipo": "stock_verificado",
+  "codigo": "ORD-2003",
+  "chatId": "5731…@c.us",
+  "mensaje": "Hola Edier, respecto a tu pedido…",
+  "todo_disponible": false,
+  "ajustes": [{ "nombre": "Molida", "estado": "cantidad_menor", "cantidad_pedida": 5, "cantidad_disponible": 2 }]
+}
+```
+
+En n8n: Webhook → HTTP Green-API `sendMessage` con `chatId` + `mensaje`.

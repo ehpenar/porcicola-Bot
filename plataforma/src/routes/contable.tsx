@@ -8,7 +8,7 @@ import { QueueTabs } from "@/components/common/queue-tabs";
 import type { PedidoStatus } from "@/lib/pedidos";
 import { pedidosQueryOptions, requireRole } from "@/lib/queries";
 
-const COBRAR: PedidoStatus[] = ["verificado_comercial"];
+const COBRAR: PedidoStatus[] = ["stock_verificado"];
 const PAGO: PedidoStatus[] = ["pago_solicitado", "comprobante_recibido"];
 const PRODUCCION: PedidoStatus[] = ["liberado_produccion"];
 const CERRAR: PedidoStatus[] = ["listo_despacho", "notificado_cliente"];
@@ -37,7 +37,8 @@ function ContablePage() {
         value: "cobrar",
         label: "Por revisar / cobrar",
         count: filter(COBRAR).length,
-        content: <PedidosTable pedidos={filter(COBRAR)} emptyTitle="Nada por cobrar" />,
+        hint: "Solo pedidos con stock ya confirmado por el Carnicero.",
+        content: <PedidosTable pedidos={filter(COBRAR)} emptyTitle="Nada por cobrar" emptyDescription="Cuando el Carnicero confirme disponibilidad, aparecerán aquí." />,
       },
       {
         value: "pago",

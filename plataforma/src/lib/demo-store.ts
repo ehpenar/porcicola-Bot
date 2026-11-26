@@ -599,6 +599,44 @@ export function demoActualizarCantidadReal(lineaId: string, cantidad: number | n
   writeData(data);
 }
 
+/** Carnicero confirma stock → stock_verificado + novedades + cantidad_real por línea. */
+export function demoVerificarStock(
+  pedidoId: string,
+  ajustes: Array<{ linea_id: string; estado: "ok" | "no_disponible" | "cantidad_menor"; cantidad_disponible: number }>,
+  novedades: string,
+) {
+  const data = readData();
+  const auth = getDemoAuth();
+  const p = data.pedidos.find((x) => x.id === pedidoId);
+  if (!p) throw new Error("Pedido no encontrado");
+  if (p.status !== "verificado_comercial") throw new Error("El pedido no está pendiente de verificación de stock");
+  if (auth && auth.role !== "general" && auth.role !== "carnicero") {
+    throw new Error("Solo el carnicero puede verificar stock");
+  }
+  for (const a of ajustes) {
+    const linea = data.lineas.find((l) => l.id === a.linea_id && l.pedido_id === pedidoId);
+    if (!linea) continue;
+    if (a.estado === "ok") linea.cantidad_real = linea.cantidad;
+    else if (a.estado === "no_disponible") linea.cantidad_real = 0;
+    else linea.cantidad_real = a.cantidad_disponible;
+  }
+  // Recalcular estimado con lo disponible
+  const lineasPedido = data.lineas.filter((l) => l.pedido_id === pedidoId);
+  p.monto_estimado = lineasPedido.reduce(
+    (sum, l) => sum + Math.round((l.cantidad_real ?? l.cantidad) * l.precio_unitario),
+    0,
+  );
+  p.novedades_carnicero = novedades;
+  const from = p.status;
+  const ts = now();
+  p.status = "stock_verificado";
+  p.status_changed_at = ts;
+  p.updated_at = ts;
+  pushEvent(data, pedidoId, auth, "verificar_stock", from, "stock_verificado", novedades);
+  writeData(data);
+  return getDemoPedidoDetail(pedidoId)!;
+}
+
 export function demoSetConfigPago(instrucciones: string, qrUrl: string) {
   const data = readData();
   data.configPago.instrucciones = instrucciones;

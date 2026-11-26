@@ -125,12 +125,10 @@ Precios: si el producto no trae `precio_unitario`, se toma del catálogo PLU de 
 
 ## Aviso de stock (Carnicero → cliente)
 
-Tras verificar disponibilidad, la plataforma hace **`POST`** (JSON) al webhook n8n de **producción**:
+Tras verificar disponibilidad, la plataforma hace `POST` al webhook n8n:
 
-`STOCK_WEBHOOK_URL` =  
-`https://ehpenar.app.n8n.cloud/webhook/b4d0784c-8649-4c78-bc0d-285b2476296e`
-
-En el nodo Webhook de n8n activa método **POST** (o “All”), no solo GET: el body JSON no viaja bien en GET.
+`STOCK_WEBHOOK_URL` (default test):  
+`https://ehpenar.app.n8n.cloud/webhook-test/b4d0784c-8649-4c78-bc0d-285b2476296e`
 
 Body ejemplo:
 

@@ -91,6 +91,7 @@ export function StockCheckPanel({ detail, role }: { detail: PedidoDetail; role: 
             codigo: pedido.codigo,
             cliente_nombre: pedido.cliente_nombre,
             cliente_telefono: pedido.cliente_telefono,
+            // Si Chat WhatsApp está vacío en la UI, el server arma chatId desde el teléfono (319… → 57319…@c.us)
             cliente_chat_id: pedido.cliente_chat_id,
           },
           ajustes,

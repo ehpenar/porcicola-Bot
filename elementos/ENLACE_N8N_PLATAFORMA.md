@@ -46,7 +46,7 @@ La plataforma acepta el **item crudo** del AI Agent (recomendado), el JSON de co
 }
 ```
 
-El servidor parsea `output` y toma el WhatsApp id de `body.instanceData.wid` → `cliente_chat_id`.
+El servidor parsea `output` y toma el WhatsApp del **cliente** desde `senderData.chatId` / `sender` (nunca `instanceData.wid`, que es el número del **bot**). Si solo hay teléfono, al avisar stock se arma `57…@c.us`.
 
 Solo se aceptan pedidos con `estado: "confirmado"` (si el campo no viene, también se acepta).
 

@@ -67,22 +67,46 @@ function tryParseJson(value: unknown): unknown {
   }
 }
 
+/**
+ * Chat del CLIENTE (a quién responder), nunca el wid de la instancia (número del bot).
+ * Green-API: senderData.chatId / sender = cliente; instanceData.wid = bot.
+ */
 function pickChatId(raw: Record<string, unknown>, pedido: Record<string, unknown>): string | null {
-  const fromWid =
-    (raw.body as { instanceData?: { wid?: string } } | undefined)?.instanceData?.wid ||
-    (raw.instanceData as { wid?: string } | undefined)?.wid ||
-    null;
+  const body = (raw.body && typeof raw.body === "object" ? raw.body : raw) as Record<string, unknown>;
+  const senderData = (body.senderData || raw.senderData) as
+    | { chatId?: string; sender?: string }
+    | undefined;
   const candidates = [
     raw.chatId,
     raw.cliente_chat_id,
     pedido.chatId,
     pedido.cliente_chat_id,
-    fromWid,
+    senderData?.chatId,
+    senderData?.sender,
   ];
   for (const c of candidates) {
     if (typeof c === "string" && c.trim()) return c.trim();
   }
   return null;
+}
+
+/** Convierte teléfono (319…) a chatId WhatsApp (57319…@c.us). */
+export function telefonoToChatId(telefono: string | null | undefined): string | null {
+  if (!telefono?.trim()) return null;
+  const digits = telefono.replace(/\D/g, "");
+  if (digits.length < 10) return null;
+  const withCountry = digits.startsWith("57") ? digits : `57${digits}`;
+  return `${withCountry}@c.us`;
+}
+
+export function resolveClienteChatId(opts: {
+  cliente_chat_id?: string | null;
+  chatId?: string | null;
+  cliente_telefono?: string | null;
+}): string | null {
+  const direct = (opts.cliente_chat_id || opts.chatId || "").trim();
+  if (direct) return direct.includes("@") ? direct : telefonoToChatId(direct) || direct;
+  return telefonoToChatId(opts.cliente_telefono);
 }
 
 /**

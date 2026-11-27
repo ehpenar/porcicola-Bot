@@ -1,4 +1,5 @@
 import type { Pedido } from "@/lib/pedidos";
+import { resolveClienteChatId } from "@/lib/enlace/schema";
 import type { StockLineaAjuste } from "@/lib/stock";
 
 /** Solo servidor — no importar desde componentes del cliente (evita secrets en el bundle). */
@@ -15,11 +16,19 @@ export async function enviarAvisoStockWebhook(payload: {
   mensaje: string;
 }) {
   const url = stockWebhookUrl();
+  // Preferir chat WhatsApp del cliente; si falta, armarlo desde el teléfono (nunca el wid del bot).
+  const chatId = resolveClienteChatId({
+    cliente_chat_id: payload.pedido.cliente_chat_id,
+    cliente_telefono: payload.pedido.cliente_telefono,
+  });
+  if (!chatId) {
+    throw new Error("No hay chatId ni teléfono del cliente para avisar por WhatsApp");
+  }
   const body = {
     tipo: "stock_verificado",
     pedido_id: payload.pedido.id,
     codigo: payload.pedido.codigo,
-    chatId: payload.pedido.cliente_chat_id,
+    chatId,
     cliente_nombre: payload.pedido.cliente_nombre,
     cliente_telefono: payload.pedido.cliente_telefono,
     mensaje: payload.mensaje,

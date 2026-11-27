@@ -29,7 +29,12 @@ type ActionDef = {
 };
 
 const BY_ACCION: Record<string, Omit<ActionDef, "id" | "to">> = {
-  verificar_pedido: { label: "Verificar pedido", icon: <CheckCircle2 />, variant: "default", successToast: "Pedido verificado. Pasa al Carnicero para confirmar stock." },
+  verificar_pedido: {
+    label: "Pedido verificado",
+    icon: <CheckCircle2 />,
+    variant: "default",
+    successToast: "Pedido verificado. Pasa al Carnicero para confirmar stock.",
+  },
   verificar_stock: {
     label: "Confirmar disponibilidad",
     icon: <PackageCheck />,
@@ -157,7 +162,7 @@ export function ActionBar({ detail, role }: { detail: PedidoDetail; role: AppRol
         return;
       }
       if (isDemoMode()) {
-        demoTransicionar(pedido.id, action.to!, nota, monto);
+        demoTransicionar(pedido.id, action.to!, nota, monto, role);
         return;
       }
       const { error } = await supabase.rpc("transicionar_pedido", {

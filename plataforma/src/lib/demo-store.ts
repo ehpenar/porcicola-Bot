@@ -383,14 +383,31 @@ function pushEvent(
   });
 }
 
-export function demoTransicionar(pedidoId: string, to: PedidoStatus, nota: string, montoPagado: number | null) {
+export function demoTransicionar(
+  pedidoId: string,
+  to: PedidoStatus,
+  nota: string,
+  montoPagado: number | null,
+  actorRole?: AppRole | null,
+) {
   const data = readData();
-  const auth = getDemoAuth();
+  let auth = getDemoAuth();
+  // Si la UI tiene rol (p.ej. comercial) pero localStorage quedó vacío/desfasado, alinear auth.
+  if (actorRole && (!auth || auth.role !== actorRole)) {
+    const acc = DEMO_ACCOUNTS.find((a) => a.role === actorRole);
+    if (acc) {
+      setDemoAuth(acc);
+      auth = acc;
+    }
+  }
   const p = data.pedidos.find((x) => x.id === pedidoId);
   if (!p) throw new Error("Pedido no encontrado");
   const t = findTransition(p.status, to);
   if (!t) throw new Error(`Transición no permitida: ${p.status} → ${to}`);
-  if (auth && auth.role !== "general" && auth.role !== t.role) throw new Error("Tu rol no puede realizar esta acción");
+  const effectiveRole = actorRole || auth?.role || null;
+  if (effectiveRole && effectiveRole !== "general" && effectiveRole !== t.role) {
+    throw new Error(`Tu rol (${effectiveRole}) no puede realizar esta acción (requiere ${t.role})`);
+  }
   if (t.requiresNote && !nota.trim()) throw new Error("Debes escribir una nota para esta acción");
   if (to === "liberado_produccion" && !(montoPagado != null && montoPagado > 0)) throw new Error("Indica el monto pagado");
 

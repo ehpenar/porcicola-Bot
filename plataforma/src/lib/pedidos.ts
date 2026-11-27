@@ -79,7 +79,7 @@ export const ORIGEN_LABEL: Record<PedidoOrigen, string> = {
 export const ACCION_LABEL: Record<string, string> = {
   pedido_creado: "Pedido creado",
   pedido_editado: "Pedido editado",
-  verificar_pedido: "Verificar pedido",
+  verificar_pedido: "Pedido verificado",
   verificar_stock: "Verificar disponibilidad de stock",
   rechazar_pedido: "Pedido rechazado",
   enviar_a_correccion: "Enviado a corrección",

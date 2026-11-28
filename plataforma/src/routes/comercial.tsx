@@ -9,9 +9,10 @@ import { CrearPedidoDemoButton, CrearPedidoManualButton } from "@/components/ped
 import type { PedidoStatus } from "@/lib/pedidos";
 import { pedidosQueryOptions, requireRole } from "@/lib/queries";
 
+/** Ya pasaron por Comercial; siguen en stock / cobro / prep. */
+const VERIFICADOS: PedidoStatus[] = ["verificado_comercial", "stock_verificado"];
+/** Más adelante en el flujo (pago, producción, despacho). */
 const EN_PROCESO: PedidoStatus[] = [
-  "verificado_comercial",
-  "stock_verificado",
   "pago_solicitado",
   "comprobante_recibido",
   "liberado_produccion",
@@ -33,13 +34,14 @@ export const Route = createFileRoute("/comercial")({
 function ComercialPage() {
   const { me } = Route.useRouteContext();
   const [tab, setTab] = useState("verificar");
-  const allStatuses = [...POR_VERIFICAR, ...EN_PROCESO, ...HISTORICO] as PedidoStatus[];
+  const allStatuses = [...POR_VERIFICAR, ...VERIFICADOS, ...EN_PROCESO, ...HISTORICO] as PedidoStatus[];
   const q = useQuery(pedidosQueryOptions(allStatuses));
 
   const queues = useMemo(() => {
     const list = q.data ?? [];
     const filter = (statuses: PedidoStatus[]) => list.filter((p) => statuses.includes(p.status));
     const verificar = filter(POR_VERIFICAR);
+    const verificados = filter(VERIFICADOS);
     const proceso = filter(EN_PROCESO);
     const historico = filter(HISTORICO);
     return [
@@ -52,6 +54,20 @@ function ComercialPage() {
             pedidos={verificar}
             emptyTitle="No hay pedidos por verificar"
             emptyDescription="Crea un pedido demo o espera uno del bot de WhatsApp."
+          />
+        ),
+      },
+      {
+        value: "verificados",
+        label: "Verificados",
+        count: verificados.length,
+        hint: "Ya los marcaste como correctos; esperan stock o cobro.",
+        content: (
+          <PedidosTable
+            pedidos={verificados}
+            emptyTitle="Ningún pedido verificado aún"
+            emptyDescription="Cuando confirmes un pedido, aparecerá aquí."
+            timer="cola"
           />
         ),
       },

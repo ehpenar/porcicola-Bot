@@ -1,8 +1,9 @@
-import { CATALOGO, findTransition, type AppRole, type Comprobante, type Evento, type Pedido, type PedidoLinea, type PedidoStatus } from "@/lib/pedidos";
+import { findTransition, type AppRole, type Comprobante, type Evento, type Pedido, type PedidoLinea, type PedidoStatus } from "@/lib/pedidos";
 import type { Me, PedidoDetail, UserRow } from "@/lib/queries";
 
 const AUTH_KEY = "porcicola-demo-auth";
-const DATA_KEY = "porcicola-demo-data";
+/** v2: sin pedidos mock inventados; solo lo que llega del bot / pruebas reales. */
+const DATA_KEY = "porcicola-demo-data-v2";
 
 export type DemoAuth = {
   userId: string;
@@ -28,180 +29,8 @@ function now() {
   return new Date().toISOString();
 }
 
-function hoursAgo(h: number) {
-  return new Date(Date.now() - h * 3600_000).toISOString();
-}
-
 function seedData(): DemoData {
-  const t0 = hoursAgo(30);
-  const mkPedido = (partial: Partial<Pedido> & Pick<Pedido, "codigo" | "status" | "cliente_nombre">): Pedido => ({
-    id: uid(),
-    origen: "bot",
-    cliente_telefono: "+57 300 000 0000",
-    cliente_chat_id: "wa-demo",
-    cliente_direccion: "Calle 10 # 20-30",
-    cliente_barrio: "Laureles",
-    cliente_ciudad: "Medellín",
-    cliente_cedula: "1234567890",
-    monto_estimado: 0,
-    monto_pagado: null,
-    notas_comercial: null,
-    notas_contable: null,
-    novedades_carnicero: null,
-    verified_at: null,
-    payment_requested_at: null,
-    proof_received_at: null,
-    released_at: null,
-    prep_done_at: null,
-    client_notified_at: null,
-    archived_at: null,
-    status_changed_at: t0,
-    created_at: t0,
-    updated_at: t0,
-    ...partial,
-  });
-
-  const pCapturado = mkPedido({
-    codigo: "ORD-1001",
-    status: "capturado",
-    cliente_nombre: "María Fernanda Ospina",
-    origen: "bot",
-    created_at: hoursAgo(2),
-    status_changed_at: hoursAgo(2),
-  });
-  const pVerificado = mkPedido({
-    codigo: "ORD-1002",
-    status: "verificado_comercial",
-    cliente_nombre: "Restaurante El Fogón",
-    verified_at: hoursAgo(5),
-    created_at: hoursAgo(8),
-    status_changed_at: hoursAgo(5),
-  });
-  const pPago = mkPedido({
-    codigo: "ORD-1003",
-    status: "pago_solicitado",
-    cliente_nombre: "Carlos Restrepo",
-    verified_at: hoursAgo(10),
-    payment_requested_at: hoursAgo(3),
-    created_at: hoursAgo(12),
-    status_changed_at: hoursAgo(3),
-  });
-  const pComp = mkPedido({
-    codigo: "ORD-1004",
-    status: "comprobante_recibido",
-    cliente_nombre: "Asadero La Brasa",
-    verified_at: hoursAgo(20),
-    payment_requested_at: hoursAgo(8),
-    proof_received_at: hoursAgo(2),
-    created_at: hoursAgo(22),
-    status_changed_at: hoursAgo(2),
-  });
-  const pProd = mkPedido({
-    codigo: "ORD-1005",
-    status: "liberado_produccion",
-    cliente_nombre: "Paula Zuluaga",
-    verified_at: hoursAgo(18),
-    payment_requested_at: hoursAgo(16),
-    proof_received_at: hoursAgo(15),
-    released_at: hoursAgo(1),
-    monto_pagado: 185000,
-    created_at: hoursAgo(24),
-    status_changed_at: hoursAgo(1),
-  });
-  const pListo = mkPedido({
-    codigo: "ORD-1006",
-    status: "listo_despacho",
-    cliente_nombre: "Tienda Doña Rosa",
-    verified_at: hoursAgo(28),
-    payment_requested_at: hoursAgo(26),
-    proof_received_at: hoursAgo(25),
-    released_at: hoursAgo(6),
-    prep_done_at: hoursAgo(1),
-    monto_pagado: 92000,
-    created_at: hoursAgo(30),
-    status_changed_at: hoursAgo(1),
-  });
-  const pArch = mkPedido({
-    codigo: "ORD-1007",
-    status: "archivado",
-    cliente_nombre: "Hernán Pérez",
-    verified_at: hoursAgo(48),
-    payment_requested_at: hoursAgo(46),
-    proof_received_at: hoursAgo(45),
-    released_at: hoursAgo(40),
-    prep_done_at: hoursAgo(36),
-    client_notified_at: hoursAgo(35),
-    archived_at: hoursAgo(34),
-    monto_pagado: 150000,
-    created_at: hoursAgo(50),
-    status_changed_at: hoursAgo(34),
-  });
-
-  const pedidos = [pCapturado, pVerificado, pPago, pComp, pProd, pListo, pArch];
-  const lineas: PedidoLinea[] = [];
-  const eventos: Evento[] = [];
-  let montoTotal = 0;
-
-  for (const p of pedidos) {
-    const items = CATALOGO.slice(0, 2 + (p.codigo.charCodeAt(7) % 2));
-    let est = 0;
-    items.forEach((c, i) => {
-      const cantidad = c.unidad === "KG" ? 2 + i : 6 + i;
-      est += Math.round(cantidad * c.precio);
-      lineas.push({
-        id: uid(),
-        pedido_id: p.id,
-        orden: i,
-        codigo_plu: c.codigo_plu,
-        nombre: c.nombre,
-        cantidad,
-        unidad: c.unidad,
-        preparacion: i === 0 ? "Porcionado" : null,
-        empaque: "Bolsa",
-        precio_unitario: c.precio,
-        cantidad_real: p.status === "archivado" || p.status === "listo_despacho" ? cantidad : null,
-      });
-    });
-    p.monto_estimado = est;
-    montoTotal += est;
-    eventos.push({
-      id: uid(),
-      pedido_id: p.id,
-      actor_id: null,
-      actor_role: null,
-      accion: "pedido_creado",
-      from_status: null,
-      to_status: "capturado",
-      detalle: "Pedido demo local (sin Supabase)",
-      created_at: p.created_at,
-    });
-    if (p.verified_at) {
-      eventos.push({
-        id: uid(),
-        pedido_id: p.id,
-        actor_id: null,
-        actor_role: "comercial",
-        accion: "verificar_pedido",
-        from_status: "capturado",
-        to_status: "verificado_comercial",
-        detalle: null,
-        created_at: p.verified_at,
-      });
-    }
-  }
-  void montoTotal;
-
-  const comprobantes: Comprobante[] = [pComp, pProd, pListo, pArch].map((p) => ({
-    id: uid(),
-    pedido_id: p.id,
-    file_path: null,
-    recibido_at: p.proof_received_at ?? now(),
-    validado_por: null,
-    resultado: p.status === "comprobante_recibido" ? "pendiente" : "aceptado",
-    nota: "Comprobante demo (sin archivo)",
-    created_at: p.proof_received_at ?? now(),
-  }));
-
+  const t0 = now();
   const users: UserRow[] = (
     [
       ["u-general", "Admin Demo", "admin@demo.local", "general"],
@@ -219,10 +48,10 @@ function seedData(): DemoData {
   }));
 
   return {
-    pedidos,
-    lineas,
-    comprobantes,
-    eventos,
+    pedidos: [],
+    lineas: [],
+    comprobantes: [],
+    eventos: [],
     users,
     configPago: {
       id: 1,

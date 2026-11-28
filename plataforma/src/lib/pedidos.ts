@@ -25,7 +25,7 @@ export const ROLE_HOME: Record<AppRole, "/general" | "/comercial" | "/contable" 
 
 export const STATUS_LABEL: Record<PedidoStatus, string> = {
   capturado: "Capturado",
-  verificado_comercial: "Por verificar stock",
+  verificado_comercial: "Verificado",
   stock_verificado: "Stock verificado",
   pago_solicitado: "Pago solicitado",
   comprobante_recibido: "Comprobante recibido",

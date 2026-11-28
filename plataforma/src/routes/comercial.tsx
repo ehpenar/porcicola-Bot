@@ -9,10 +9,13 @@ import { CrearPedidoDemoButton, CrearPedidoManualButton } from "@/components/ped
 import type { PedidoStatus } from "@/lib/pedidos";
 import { pedidosQueryOptions, requireRole } from "@/lib/queries";
 
-/** Ya pasaron por Comercial; siguen en stock / cobro / prep. */
-const VERIFICADOS: PedidoStatus[] = ["verificado_comercial", "stock_verificado"];
-/** Más adelante en el flujo (pago, producción, despacho). */
+/** Aún pendientes de la verificación de Comercial. */
+const POR_VERIFICAR: PedidoStatus[] = ["capturado", "en_correccion"];
+/** Ya verificados por Comercial; esperan stock del Carnicero (no es "stock verificado"). */
+const VERIFICADOS: PedidoStatus[] = ["verificado_comercial"];
+/** Avanzaron en el flujo (carnicero / contable / producción). */
 const EN_PROCESO: PedidoStatus[] = [
+  "stock_verificado",
   "pago_solicitado",
   "comprobante_recibido",
   "liberado_produccion",
@@ -20,7 +23,6 @@ const EN_PROCESO: PedidoStatus[] = [
   "notificado_cliente",
 ];
 const HISTORICO: PedidoStatus[] = ["archivado", "rechazado", "cancelado"];
-const POR_VERIFICAR: PedidoStatus[] = ["capturado", "en_correccion"];
 
 export const Route = createFileRoute("/comercial")({
   beforeLoad: async ({ context }) => {
@@ -61,13 +63,12 @@ function ComercialPage() {
         value: "verificados",
         label: "Verificados",
         count: verificados.length,
-        hint: "Ya los marcaste como correctos; esperan stock o cobro.",
+        hint: "Ya los marcaste como verificados. El Carnicero confirma el stock después.",
         content: (
           <PedidosTable
             pedidos={verificados}
             emptyTitle="Ningún pedido verificado aún"
-            emptyDescription="Cuando confirmes un pedido, aparecerá aquí."
-            timer="cola"
+            emptyDescription="Cuando pulses «Pedido verificado», aparecerán aquí."
           />
         ),
       },

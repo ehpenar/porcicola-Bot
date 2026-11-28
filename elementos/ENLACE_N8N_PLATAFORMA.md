@@ -146,3 +146,26 @@ Body ejemplo:
 ```
 
 En n8n: Webhook → HTTP Green-API `sendMessage` con `chatId` + `mensaje`.
+
+## Solicitud de pago (Contable → cliente)
+
+Al pulsar **Solicitar pago al cliente**, la plataforma hace `POST` al **mismo webhook**:
+
+`https://ehpenar.app.n8n.cloud/webhook/b4d0784c-8649-4c78-bc0d-285b2476296e`
+
+```json
+{
+  "tipo": "pago_solicitado",
+  "chatId": "573195658769@c.us",
+  "codigo": "ORD-2002",
+  "mensaje": "Hola Edier, para pagar tu pedido ORD-2002:\n\nNequi: 3195658769\nMonto: $470.000\n\n...",
+  "nequi": "3195658769",
+  "monto_estimado": 470000,
+  "qr_url": "https://porcicolabot.netlify.app/pago/qr-nequi.webp"
+}
+```
+
+En n8n (IF `tipo === pago_solicitado`):
+
+1. Green-API `sendMessage` → `chatId` + `mensaje`  
+2. Green-API `sendFileByUrl` → `chatId` + `url: qr_url` (imagen QR)

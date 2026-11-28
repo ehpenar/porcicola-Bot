@@ -21,6 +21,7 @@ import { Route as GeneralEstadisticasRouteImport } from './routes/general/estadi
 import { Route as GeneralPedidosRouteImport } from './routes/general/pedidos'
 import { Route as GeneralUsuariosRouteImport } from './routes/general/usuarios'
 import { Route as PedidosIdRouteImport } from './routes/pedidos/$id'
+import { Route as ApiEnlaceAvisoPagoRouteImport } from './routes/api/enlace/aviso-pago'
 import { Route as ApiEnlaceAvisoStockRouteImport } from './routes/api/enlace/aviso-stock'
 import { Route as ApiEnlacePedidosRouteImport } from './routes/api/enlace/pedidos'
 import { Route as ApiEnlacePedidosIdRouteImport } from './routes/api/enlace/pedidos/$id'
@@ -85,6 +86,11 @@ const PedidosIdRoute = PedidosIdRouteImport.update({
   path: '/pedidos/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiEnlaceAvisoPagoRoute = ApiEnlaceAvisoPagoRouteImport.update({
+  id: '/api/enlace/aviso-pago',
+  path: '/api/enlace/aviso-pago',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiEnlaceAvisoStockRoute = ApiEnlaceAvisoStockRouteImport.update({
   id: '/api/enlace/aviso-stock',
   path: '/api/enlace/aviso-stock',
@@ -114,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/general/usuarios': typeof GeneralUsuariosRoute
   '/pedidos/$id': typeof PedidosIdRoute
   '/general/': typeof GeneralIndexRoute
+  '/api/enlace/aviso-pago': typeof ApiEnlaceAvisoPagoRoute
   '/api/enlace/aviso-stock': typeof ApiEnlaceAvisoStockRoute
   '/api/enlace/pedidos': typeof ApiEnlacePedidosRouteWithChildren
   '/api/enlace/pedidos/$id': typeof ApiEnlacePedidosIdRoute
@@ -131,6 +138,7 @@ export interface FileRoutesByTo {
   '/general/usuarios': typeof GeneralUsuariosRoute
   '/pedidos/$id': typeof PedidosIdRoute
   '/general': typeof GeneralIndexRoute
+  '/api/enlace/aviso-pago': typeof ApiEnlaceAvisoPagoRoute
   '/api/enlace/aviso-stock': typeof ApiEnlaceAvisoStockRoute
   '/api/enlace/pedidos': typeof ApiEnlacePedidosRouteWithChildren
   '/api/enlace/pedidos/$id': typeof ApiEnlacePedidosIdRoute
@@ -149,6 +157,7 @@ export interface FileRoutesById {
   '/general/usuarios': typeof GeneralUsuariosRoute
   '/pedidos/$id': typeof PedidosIdRoute
   '/general/': typeof GeneralIndexRoute
+  '/api/enlace/aviso-pago': typeof ApiEnlaceAvisoPagoRoute
   '/api/enlace/aviso-stock': typeof ApiEnlaceAvisoStockRoute
   '/api/enlace/pedidos': typeof ApiEnlacePedidosRouteWithChildren
   '/api/enlace/pedidos/$id': typeof ApiEnlacePedidosIdRoute
@@ -168,6 +177,7 @@ export interface FileRouteTypes {
     | '/general/usuarios'
     | '/pedidos/$id'
     | '/general/'
+    | '/api/enlace/aviso-pago'
     | '/api/enlace/aviso-stock'
     | '/api/enlace/pedidos'
     | '/api/enlace/pedidos/$id'
@@ -185,6 +195,7 @@ export interface FileRouteTypes {
     | '/general/usuarios'
     | '/pedidos/$id'
     | '/general'
+    | '/api/enlace/aviso-pago'
     | '/api/enlace/aviso-stock'
     | '/api/enlace/pedidos'
     | '/api/enlace/pedidos/$id'
@@ -202,6 +213,7 @@ export interface FileRouteTypes {
     | '/general/usuarios'
     | '/pedidos/$id'
     | '/general/'
+    | '/api/enlace/aviso-pago'
     | '/api/enlace/aviso-stock'
     | '/api/enlace/pedidos'
     | '/api/enlace/pedidos/$id'
@@ -220,6 +232,7 @@ export interface RootRouteChildren {
   GeneralUsuariosRoute: typeof GeneralUsuariosRoute
   PedidosIdRoute: typeof PedidosIdRoute
   GeneralIndexRoute: typeof GeneralIndexRoute
+  ApiEnlaceAvisoPagoRoute: typeof ApiEnlaceAvisoPagoRoute
   ApiEnlaceAvisoStockRoute: typeof ApiEnlaceAvisoStockRoute
   ApiEnlacePedidosRoute: typeof ApiEnlacePedidosRouteWithChildren
 }
@@ -310,6 +323,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PedidosIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/enlace/aviso-pago': {
+      id: '/api/enlace/aviso-pago'
+      path: '/api/enlace/aviso-pago'
+      fullPath: '/api/enlace/aviso-pago'
+      preLoaderRoute: typeof ApiEnlaceAvisoPagoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/enlace/aviso-stock': {
       id: '/api/enlace/aviso-stock'
       path: '/api/enlace/aviso-stock'
@@ -358,6 +378,7 @@ const rootRouteChildren: RootRouteChildren = {
   GeneralUsuariosRoute: GeneralUsuariosRoute,
   PedidosIdRoute: PedidosIdRoute,
   GeneralIndexRoute: GeneralIndexRoute,
+  ApiEnlaceAvisoPagoRoute: ApiEnlaceAvisoPagoRoute,
   ApiEnlaceAvisoStockRoute: ApiEnlaceAvisoStockRoute,
   ApiEnlacePedidosRoute: ApiEnlacePedidosRouteWithChildren,
 }

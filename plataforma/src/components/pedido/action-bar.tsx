@@ -55,8 +55,11 @@ const BY_ACCION: Record<string, Omit<ActionDef, "id" | "to">> = {
     icon: <Send />,
     variant: "default",
     showPaymentInfo: true,
-    confirm: { title: "Solicitar pago al cliente", description: "Se enviará al cliente el mensaje con las instrucciones de pago (simulado)." },
-    successToast: "Mensaje simulado enviado al cliente",
+    confirm: {
+      title: "Solicitar pago al cliente",
+      description: "Se enviará por WhatsApp el Nequi 3195658769, el monto y el QR de pago.",
+    },
+    successToast: "Instrucciones de pago enviadas al cliente",
   },
   devolver_a_comercial: { label: "Devolver a comercial", icon: <Undo2 />, variant: "outline", note: { label: "Nota para comercial", required: true } },
   cancelar_pedido: {
@@ -163,6 +166,26 @@ export function ActionBar({ detail, role }: { detail: PedidoDetail; role: AppRol
       }
       if (isDemoMode()) {
         demoTransicionar(pedido.id, action.to!, nota, monto, role);
+        if (action.id === "solicitar_pago") {
+          const wh = await fetch("/api/enlace/aviso-pago", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              pedido: {
+                id: pedido.id,
+                codigo: pedido.codigo,
+                cliente_nombre: pedido.cliente_nombre,
+                cliente_telefono: pedido.cliente_telefono,
+                cliente_chat_id: pedido.cliente_chat_id,
+                monto_estimado: pedido.monto_estimado,
+              },
+            }),
+          });
+          const whJson = (await wh.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+          if (!wh.ok || !whJson.ok) {
+            toast.warning(whJson.error || "Pago solicitado en la app, pero el aviso WhatsApp (webhook) falló");
+          }
+        }
         return;
       }
       const { error } = await supabase.rpc("transicionar_pedido", {
@@ -172,6 +195,22 @@ export function ActionBar({ detail, role }: { detail: PedidoDetail; role: AppRol
         ...(monto != null ? { p_monto_pagado: monto } : {}),
       });
       if (error) throw error;
+      if (action.id === "solicitar_pago") {
+        await fetch("/api/enlace/aviso-pago", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            pedido: {
+              id: pedido.id,
+              codigo: pedido.codigo,
+              cliente_nombre: pedido.cliente_nombre,
+              cliente_telefono: pedido.cliente_telefono,
+              cliente_chat_id: pedido.cliente_chat_id,
+              monto_estimado: pedido.monto_estimado,
+            },
+          }),
+        });
+      }
     },
     onMutate: async ({ action }) => {
       await queryClient.cancelQueries({ queryKey: key });

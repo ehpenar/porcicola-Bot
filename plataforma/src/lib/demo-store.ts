@@ -227,8 +227,8 @@ function seedData(): DemoData {
     configPago: {
       id: 1,
       instrucciones:
-        "DEMO — Bancolombia ahorro 123-456789-01 a nombre de Porcicola S.A.S. Envía el comprobante por WhatsApp.",
-      qr_url: null,
+        "Nequi: 3195658769\nTransfiere el monto del pedido y envía el comprobante por WhatsApp.\nTambién puedes escanear el QR de pago.",
+      qr_url: "/pago/qr-nequi.webp",
       updated_at: t0,
     },
   };
